@@ -1,0 +1,19 @@
+{
+  "name": "notificaption",
+  "version": "0.0.0",
+  "description": "Screenshots of Emissary for notifications",
+  "main": "notificaption.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/opsee/notificaption.git"
+  },
+  "author": "Opsee",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/opsee/notificaption/issues"
+  },
+  "homepage": "https://github.com/opsee/notificaption#readme"
+}
