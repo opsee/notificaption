@@ -1,6 +1,7 @@
+const AWS = require('aws-sdk');
+const fs = require('fs');
 const Nightmare = require('nightmare');
 const restify = require('restify');
-const AWS = require('aws-sdk');
 
 const S3_BUCKET = 'doeg-notificaption-test';
 const S3_KEY = process.env.NOTIFICAPTION_S3_KEY;
@@ -16,6 +17,27 @@ const nightmare = Nightmare({
   width: 350
 });
 
+/**
+ * Writes the POSTed check data to a .json file for to populate the /check
+ * page in Emissary.
+ *
+ * @param {object} checkData
+ * @returns {Promise}
+ */
+function dumpToFile(checkData) {
+  const checkID = checkData.id;
+  const filename = `${checkID}.json`;
+
+  return new Promise((resolve, reject) => {
+    fs.appendFile(filename, JSON.stringify(checkData), err => {
+
+      console.log("Data written to " + filename);
+      if (err) reject(err);
+      else resolve();
+    });
+  });
+}
+
 function generateScreenshot() {
   return nightmare
     .goto('http://localhost:8080')
@@ -23,7 +45,7 @@ function generateScreenshot() {
 }
 
 function uploadScreenshot(buffer) {
-  s3.upload({
+  return s3.upload({
     Body: buffer,
     ContentEncoding: 'base64',
     ContentType: 'image/jpeg'
@@ -37,7 +59,9 @@ function uploadScreenshot(buffer) {
 }
 
 function postScreenshot(req, res, next) {
-  generateScreenshot()
+
+  dumpToFile(req.params)
+    .then(generateScreenshot)
     .then(uploadScreenshot);
 
   res.send(req.body);
