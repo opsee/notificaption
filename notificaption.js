@@ -60,17 +60,21 @@ function generateScreenshot(checkID) {
     .screenshot();
 }
 
-function uploadScreenshot(buffer) {
-  return s3.upload({
-    Body: buffer,
-    ContentEncoding: 'base64',
-    ContentType: 'image/jpeg'
-  })
-  .on('httpUploadProgress', e => {
-    console.log(e);
-  })
-  .send((err, data) => {
-    console.log(err, data)
+/**
+ * @param {Buffer} imageBuffer
+ * @returns {Promise}
+ */
+function uploadScreenshot(imageBuffer) {
+  return new Promise((resolve, reject) => {
+    s3.upload({
+      Body: imageBuffer,
+      ContentEncoding: 'base64',
+      ContentType: 'image/jpeg'
+    }) // .on('httpUploadProgress', e => { ... }
+    .send((err, data) => {
+      if (err) reject(err);
+      else resolve({ uri: data.Location });
+    });
   });
 }
 
