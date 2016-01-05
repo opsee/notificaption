@@ -1,5 +1,16 @@
-var Nightmare = require('nightmare');
-var restify = require('restify');
+const Nightmare = require('nightmare');
+const restify = require('restify');
+const AWS = require('aws-sdk');
+
+const S3_BUCKET = 'doeg-notificaption-test';
+const S3_KEY = process.env.NOTIFICAPTION_S3_KEY;
+
+const s3 = new AWS.S3({
+  params: {
+    Bucket: S3_BUCKET,
+    Key: S3_KEY
+  }
+});
 
 const nightmare = Nightmare({
   width: 350
@@ -11,11 +22,23 @@ function generateScreenshot() {
     .screenshot();
 }
 
+function uploadScreenshot(buffer) {
+  s3.upload({
+    Body: buffer,
+    ContentEncoding: 'base64',
+    ContentType: 'image/jpeg'
+  })
+  .on('httpUploadProgress', e => {
+    console.log(e);
+  })
+  .send((err, data) => {
+    console.log(err, data)
+  });
+}
+
 function postScreenshot(req, res, next) {
   generateScreenshot()
-    .then(buffer => {
-      console.log('all done');
-    });
+    .then(uploadScreenshot);
 
   res.send(req.body);
   next();
