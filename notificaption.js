@@ -30,7 +30,7 @@ function dumpToFile(checkData) {
   return new Promise((resolve, reject) => {
     fs.appendFile(filename, JSON.stringify(checkData), err => {
       if (err) reject(err);
-      else resolve();
+      else resolve(checkData);
     });
   });
 }
@@ -43,8 +43,9 @@ function dumpToFile(checkData) {
  * @param {String} checkID
  * @returns {Promise}
  */
-function generateScreenshot(checkID) {
+function generateScreenshot(checkData) {
 
+  const checkID = checkData.id;
   const emissaryConfig = config.emissary;
   const checkPath = [emissaryConfig.basePath, checkID].join('/');
 
