@@ -101,6 +101,10 @@ server.use(restify.bodyParser({ mapParams: true }));
 
 server.post('/screenshot', postScreenshot);
 
+server.get(/\/checks\/?.*/, restify.serveStatic({
+  directory: './tmp'
+}));
+
 server.listen(8888, function() {
   console.log('%s listening at %s', server.name, server.url);
 });
