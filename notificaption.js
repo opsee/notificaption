@@ -1,9 +1,7 @@
 var restify = require('restify');
 
-function respond(req, res, next) {
-  res.send({
-    hello: req.params.name
-  });
+function postScreenshot(req, res, next) {
+  res.send(req.body);
   next();
 }
 
@@ -11,7 +9,9 @@ var server = restify.createServer({
   name: 'notificaption'
 });
 
-server.get('/hello/:name', respond);
+server.use(restify.bodyParser({ mapParams: true }));
+
+server.post('/screenshot', postScreenshot);
 
 server.listen(8888, function() {
   console.log('%s listening at %s', server.name, server.url);
