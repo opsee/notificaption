@@ -7,6 +7,7 @@ var server = restify.createServer({
 });
 
 server.use(restify.bodyParser({ mapParams: true }));
+server.use(restify.CORS());
 
 function postScreenshot(req, res, next) {
   notificaption.screenshot(req.params)
