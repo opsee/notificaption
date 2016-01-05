@@ -1,15 +1,14 @@
 const AWS = require('aws-sdk');
+const config = require('config');
 const fs = require('fs');
 const Nightmare = require('nightmare');
 const restify = require('restify');
-
-const S3_BUCKET = 'doeg-notificaption-test';
-const S3_KEY = process.env.NOTIFICAPTION_S3_KEY;
+const URL = require('url');
 
 const s3 = new AWS.S3({
   params: {
-    Bucket: S3_BUCKET,
-    Key: S3_KEY
+    Bucket: config.s3.bucket,
+    Key: process.env.NOTIFICAPTION_S3_KEY
   }
 });
 
@@ -30,17 +29,34 @@ function dumpToFile(checkData) {
 
   return new Promise((resolve, reject) => {
     fs.appendFile(filename, JSON.stringify(checkData), err => {
-
-      console.log("Data written to " + filename);
       if (err) reject(err);
       else resolve();
     });
   });
 }
 
-function generateScreenshot() {
+/**
+ * Navigates to Emissary in a headless browser and grabs a screenshot of the
+ * /check page. The UI is populated from a JSON file containing the data POSTed
+ * to the notificaption service.
+ *
+ * @param {String} checkID
+ * @returns {Promise}
+ */
+function generateScreenshot(checkID) {
+
+  const emissaryConfig = config.emissary;
+  const checkPath = [emissaryConfig.basePath, checkID].join('/');
+
+  const uri = URL.format({
+    protocol: 'http',
+    hostname: emissaryConfig.hostname,
+    port: emissaryConfig.port,
+    pathname: checkPath
+  });
+
   return nightmare
-    .goto('http://localhost:8080')
+    .goto(uri)
     .screenshot();
 }
 
@@ -58,14 +74,16 @@ function uploadScreenshot(buffer) {
   });
 }
 
+
 function postScreenshot(req, res, next) {
 
   dumpToFile(req.params)
     .then(generateScreenshot)
-    .then(uploadScreenshot);
-
-  res.send(req.body);
-  next();
+    .then(uploadScreenshot)
+    .then(resp => {
+      res.send({ uri: resp.uri });
+      next();
+    });
 }
 
 var server = restify.createServer({
