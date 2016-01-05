@@ -2,8 +2,7 @@ const AWS = require('aws-sdk');
 const config = require('config');
 const fs = require('fs');
 const Nightmare = require('nightmare');
-var Path = require('path');
-const restify = require('restify');
+const Path = require('path');
 const URL = require('url');
 
 const s3 = new AWS.S3({
@@ -81,30 +80,16 @@ function uploadScreenshot(imageBuffer) {
   });
 }
 
-
-function postScreenshot(req, res, next) {
-
-  dumpToFile(req.params)
+/**
+ * @param {object} params
+ * @returns {Promise}
+ */
+function screenshot(params) {
+  return dumpToFile(params)
     .then(generateScreenshot)
-    .then(uploadScreenshot)
-    .then(resp => {
-      res.send({ uri: resp.uri });
-      next();
-    });
+    .then(uploadScreenshot);
 }
 
-var server = restify.createServer({
-  name: 'notificaption'
-});
-
-server.use(restify.bodyParser({ mapParams: true }));
-
-server.post('/screenshot', postScreenshot);
-
-server.get(/\/checks\/?.*/, restify.serveStatic({
-  directory: './tmp'
-}));
-
-server.listen(8888, function() {
-  console.log('%s listening at %s', server.name, server.url);
-});
+module.exports = {
+  screenshot: screenshot
+};
