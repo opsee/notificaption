@@ -17,7 +17,6 @@
   },
   "homepage": "https://github.com/opsee/notificaption#readme",
   "dependencies": {
-    "Emissary": "github:opsee/emissary",
     "aws-sdk": "^2.2.26",
     "config": "^1.17.1",
     "nightmare": "^2.1.2",
