@@ -2,6 +2,7 @@ const AWS = require('aws-sdk');
 const config = require('config');
 const fs = require('fs');
 const Nightmare = require('nightmare');
+var Path = require('path');
 const restify = require('restify');
 const URL = require('url');
 
@@ -26,9 +27,10 @@ const nightmare = Nightmare({
 function dumpToFile(checkData) {
   const checkID = checkData.id;
   const filename = `${checkID}.json`;
+  const filePath = Path.resolve(`./tmp/checks/${filename}`);
 
   return new Promise((resolve, reject) => {
-    fs.appendFile(filename, JSON.stringify(checkData), err => {
+    fs.appendFile(filePath, JSON.stringify(checkData), err => {
       if (err) reject(err);
       else resolve(checkData);
     });
