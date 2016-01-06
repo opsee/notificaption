@@ -13,7 +13,8 @@ const s3 = new AWS.S3({
 });
 
 const nightmare = Nightmare({
-  width: 350
+  width: 350,
+  height: 1000
 });
 
 /**
