@@ -29,7 +29,7 @@ function dumpToFile(checkData) {
   const filePath = Path.resolve(`./tmp/checks/${filename}`);
 
   return new Promise((resolve, reject) => {
-    fs.appendFile(filePath, JSON.stringify(checkData), err => {
+    fs.writeFile(filePath, JSON.stringify(checkData), err => {
       if (err) reject(err);
       else resolve(checkData);
     });
