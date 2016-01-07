@@ -13,8 +13,8 @@ const s3 = new AWS.S3({
 });
 
 const nightmare = Nightmare({
-  width: 350,
-  height: 1000
+  width: 400,
+  height: 1200
 });
 
 /**
@@ -49,7 +49,7 @@ function generateScreenshot(checkData) {
 
   const checkID = checkData.id;
   const emissaryConfig = config.emissary;
-  const checkPath = [emissaryConfig.basePath, checkID].join('/');
+  const checkPath = [emissaryConfig.basePath, checkID, 'screenshot'].join('/');
 
   const uri = URL.format({
     protocol: 'http',
