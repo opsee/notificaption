@@ -73,7 +73,7 @@ function uploadScreenshot(imageBuffer) {
       Body: imageBuffer,
       ContentEncoding: 'base64',
       ContentType: 'image/jpeg'
-    }) // .on('httpUploadProgress', e => { ... }
+    })
     .send((err, data) => {
       if (err) reject(err);
       else resolve({ uri: data.Location });
