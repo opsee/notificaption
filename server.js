@@ -14,6 +14,9 @@ function postScreenshot(req, res, next) {
     .then(resp => {
       res.send({ uri: resp.uri });
       next();
+    })
+    .catch(err => {
+      next(err);
     });
 }
 
