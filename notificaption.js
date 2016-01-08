@@ -46,7 +46,6 @@ function dumpToFile(checkData) {
  * @returns {Promise}
  */
 function generateScreenshot(checkData) {
-
   const checkID = checkData.id;
   const emissaryConfig = config.emissary;
   const checkPath = [emissaryConfig.basePath, checkID, 'screenshot'].join('/');
@@ -58,21 +57,45 @@ function generateScreenshot(checkData) {
     pathname: checkPath
   });
 
-  return nightmare
+  // Nightmare is based on "thenables", which don't seem to resolve to true
+  // promises. In order for further .then()s to work down the chain, we wrap
+  // it explicitly in a promise. (See http://stackoverflow.com/a/32589625)
+  return Promise.resolve(nightmare
     .goto(uri)
-    .screenshot();
+    .screenshot()
+  ).then(imageBuffer => {
+    return {
+      check: checkData,
+      imageBuffer: imageBuffer
+    }
+  });
+}
+
+/**
+ * Returns a unique identifier for screenshots that are uploaded to S3.
+ * The ID is composed of the check ID of the screenshot and the current time
+ * (in milliseconds). The timestamp ensures that multiple check failures will
+ * not overwrite one another.
+ *
+ * @param {String} checkID
+ * @returns {String}
+ */
+function generateS3Key(checkID) {
+  const now = new Date().getTime();
+  return `${checkID}_${now}`;
 }
 
 /**
  * @param {Buffer} imageBuffer
  * @returns {Promise}
  */
-function uploadScreenshot(imageBuffer) {
+function uploadScreenshot(data) {
   return new Promise((resolve, reject) => {
     s3.upload({
-      Body: imageBuffer,
+      Body: data.imageBuffer,
       ContentEncoding: 'base64',
-      ContentType: 'image/jpeg'
+      ContentType: 'image/jpeg',
+      Key: generateS3Key(data.check.id)
     })
     .send((err, data) => {
       if (err) reject(err);
