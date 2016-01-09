@@ -1,8 +1,7 @@
 const notificaption = require('./notificaption');
-const config = require('config');
 const restify = require('restify');
 
-var server = restify.createServer({
+const server = restify.createServer({
   name: 'notificaption'
 });
 
@@ -26,6 +25,6 @@ server.get(/\/checks\/?.*/, restify.serveStatic({
   directory: './tmp'
 }));
 
-server.listen(8888, function() {
+server.listen(8888, () => {
   console.log('%s listening at %s', server.name, server.url);
 });

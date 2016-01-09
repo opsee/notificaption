@@ -67,7 +67,7 @@ function generateScreenshot(checkData) {
     return {
       check: checkData,
       imageBuffer: imageBuffer
-    }
+    };
   });
 }
 
@@ -97,9 +97,9 @@ function uploadScreenshot(data) {
       ContentType: 'image/jpeg',
       Key: generateS3Key(data.check.id)
     })
-    .send((err, data) => {
+    .send((err, result) => {
       if (err) reject(err);
-      else resolve({ uri: data.Location });
+      else resolve({ uri: result.Location });
     });
   });
 }
