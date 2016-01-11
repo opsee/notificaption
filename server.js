@@ -19,6 +19,11 @@ function postScreenshot(req, res, next) {
     });
 }
 
+server.get('/', (req, res, next) => {
+  res.send('hello world');
+  next();
+});
+
 server.post('/screenshot', postScreenshot);
 
 server.get(/\/checks\/?.*/, restify.serveStatic({
