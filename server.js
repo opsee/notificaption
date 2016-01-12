@@ -30,6 +30,6 @@ server.get(/\/checks\/?.*/, restify.serveStatic({
   directory: './tmp'
 }));
 
-server.listen(8888, () => {
+server.listen(9099, () => {
   console.log('%s listening at %s', server.name, server.url);
 });
