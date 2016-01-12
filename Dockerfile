@@ -11,4 +11,4 @@ RUN npm install
 COPY . /usr/src/app
 
 EXPOSE 8888
-CMD [ "npm", "start" ]
+CMD [ "node", "/usr/src/app/server.js" ]
