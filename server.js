@@ -25,6 +25,7 @@ function postScreenshot(req, res, next) {
 }
 
 server.get('/', (req, res, next) => {
+  logger.info('ping');
   res.send('hello world');
   next();
 });

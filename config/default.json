@@ -1,6 +1,6 @@
 {
   "s3": {
-    "bucket": "doeg-notificaption-test"
+    "bucket": "opsee-notificaption-images"
   },
 
   "emissary": {
