@@ -1,0 +1,12 @@
+{
+  "s3": {
+    "bucket": "opsee-notificaption-images"
+  },
+
+  "emissary": {
+    "protocol": "http",
+    "hostname": "localhost",
+    "port": 8080,
+    "basePath": "/check"
+  }
+}
