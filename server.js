@@ -24,6 +24,11 @@ server.get('/', (req, res, next) => {
   next();
 });
 
+server.get('/health', (req, res, next) => {
+  res.send(200);
+  next();
+});
+
 server.post('/screenshot', postScreenshot);
 
 server.get(/\/checks\/?.*/, restify.serveStatic({
