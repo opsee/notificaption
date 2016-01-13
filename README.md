@@ -26,7 +26,7 @@ All notificaption logs show up in [Papertrail](https://papertrailapp.com/groups/
 
 If the service is failing, make sure notificaption is playing nice with Docker by running it locally:
 
-1. `docker build -t quay.io/opsee/notificaption .`
-1. `docker run -p 9099:9099 -d quay.io/opsee/notificaption`
+1. Build the docker image locally: `npm run docker-build`
+1. Start up the docker image: `npm run docker-run`
 1. Get the IP address of the local docker-machine: `docker-machine ip default` (e.g., 123.4.5.6)
 1. Try hitting `123.4.5.6:9099`
