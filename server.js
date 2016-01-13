@@ -10,7 +10,6 @@ server.use(restify.bodyParser({ mapParams: true }));
 server.use(restify.CORS());
 
 function postScreenshot(req, res, next) {
-
   const checkID = req.params.id;
   logger.info(`Screenshot request for check ${checkID}`);
 
