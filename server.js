@@ -1,3 +1,4 @@
+const logger = require('./utils/logger');
 const notificaption = require('./notificaption');
 const restify = require('restify');
 
@@ -36,5 +37,5 @@ server.get(/\/checks\/?.*/, restify.serveStatic({
 }));
 
 server.listen(9099, () => {
-  console.log('%s listening at %s', server.name, server.url);
+  logger.info('%s listening at %s', server.name, server.url);
 });
