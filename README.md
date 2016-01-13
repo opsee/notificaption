@@ -18,8 +18,7 @@ Returns an empty response with a 200 status code, when operating normally. Used 
 1. Start screenshotting by `POST`ing to `http://localhost:9099/screenshot`. 
 
 ## Deployment
-1. `docker build -t quay.io/opsee/notificaption .`
-1. `docker push quay.io/opsee/notificaption`
+1. Build the Docker image and push it to quay.io: `npm run docker-publish`
 1. From the [`compute` repo](https://github.com/opsee/compute): `./run deploy production notificaption latest`
 
 ### Troubleshooting deploys
