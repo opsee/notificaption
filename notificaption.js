@@ -1,6 +1,7 @@
 const AWS = require('aws-sdk');
 const config = require('config');
 const fs = require('fs');
+const logger = require('./utils/logger');
 const Nightmare = require('nightmare');
 const Path = require('path');
 const URL = require('url');
@@ -57,6 +58,8 @@ function generateScreenshot(checkData) {
     pathname: checkPath
   });
 
+  logger.info(`Generating screenshot for check ${checkID} from Emissary running at ${uri}`);
+
   // Nightmare is based on "thenables", which don't seem to resolve to true
   // promises. In order for further .then()s to work down the chain, we wrap
   // it explicitly in a promise. (See http://stackoverflow.com/a/32589625)
@@ -64,6 +67,7 @@ function generateScreenshot(checkData) {
     .goto(uri)
     .screenshot()
   ).then(imageBuffer => {
+    logger.info(`Generated screenshot for check ${checkID}`);
     return {
       check: checkData,
       imageBuffer: imageBuffer
@@ -90,6 +94,9 @@ function generateS3Key(checkID) {
  * @returns {Promise}
  */
 function uploadScreenshot(data) {
+  const checkID = data.check.id;
+  logger.info(`Uploading screenshot for check ${checkID}`);
+
   return new Promise((resolve, reject) => {
     s3.upload({
       Body: data.imageBuffer,
@@ -98,8 +105,13 @@ function uploadScreenshot(data) {
       Key: generateS3Key(data.check.id)
     })
     .send((err, result) => {
-      if (err) reject(err);
-      else resolve({ uri: result.Location });
+      if (err) {
+        logger.info(`Error uploading screenshot for check ${checkID}`);
+        reject(err);
+      } else {
+        logger.info(`Uploaded screenshot for check ${checkID}`);
+        resolve({ uri: result.Location });
+      }
     });
   });
 }

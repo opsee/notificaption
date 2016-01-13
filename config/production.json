@@ -6,7 +6,7 @@
   "emissary": {
     "protocol": "https",
     "hostname": "app.opsee.com",
-    "port": 80,
+    "port": null,
     "basePath": "/check"
   }
 }

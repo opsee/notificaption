@@ -41,5 +41,5 @@ server.get(/\/checks\/?.*/, restify.serveStatic({
 }));
 
 server.listen(9099, () => {
-  logger.info('%s listening at %s', server.name, server.url);
+  logger.info('%s server %s listening at %s', process.env.NODE_ENV, server.name, server.url);
 });
