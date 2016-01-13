@@ -1,6 +1,7 @@
 const AWS = require('aws-sdk');
 const config = require('config');
 const fs = require('fs');
+const logger = require('./utils/logger');
 const Nightmare = require('nightmare');
 const Path = require('path');
 const URL = require('url');
@@ -64,6 +65,7 @@ function generateScreenshot(checkData) {
     .goto(uri)
     .screenshot()
   ).then(imageBuffer => {
+    logger.info(`Generated screenshot for check ${checkID}`);
     return {
       check: checkData,
       imageBuffer: imageBuffer
@@ -90,6 +92,7 @@ function generateS3Key(checkID) {
  * @returns {Promise}
  */
 function uploadScreenshot(data) {
+  logger.info(`Uploading screenshot for check ${checkID}`);
   return new Promise((resolve, reject) => {
     s3.upload({
       Body: data.imageBuffer,
@@ -98,8 +101,13 @@ function uploadScreenshot(data) {
       Key: generateS3Key(data.check.id)
     })
     .send((err, result) => {
-      if (err) reject(err);
-      else resolve({ uri: result.Location });
+      if (err) {
+        logger.info(`Error uploading screenshot for check ${checkID}`);
+        reject(err);
+      } else {
+        logger.info(`Uploaded screenshot for check ${checkID}`);
+        resolve({ uri: result.Location });
+      }
     });
   });
 }
