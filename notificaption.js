@@ -58,7 +58,7 @@ function generateScreenshot(checkData) {
     pathname: checkPath
   });
 
-  logger.info(`Generating screenshot for check ${checkID}`);
+  logger.info(`Generating screenshot for check ${checkID} from Emissary running at ${uri}`);
 
   // Nightmare is based on "thenables", which don't seem to resolve to true
   // promises. In order for further .then()s to work down the chain, we wrap
