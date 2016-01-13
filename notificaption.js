@@ -58,6 +58,8 @@ function generateScreenshot(checkData) {
     pathname: checkPath
   });
 
+  logger.info(`Generating screenshot for check ${checkID}`);
+
   // Nightmare is based on "thenables", which don't seem to resolve to true
   // promises. In order for further .then()s to work down the chain, we wrap
   // it explicitly in a promise. (See http://stackoverflow.com/a/32589625)
@@ -93,6 +95,7 @@ function generateS3Key(checkID) {
  */
 function uploadScreenshot(data) {
   logger.info(`Uploading screenshot for check ${checkID}`);
+
   return new Promise((resolve, reject) => {
     s3.upload({
       Body: data.imageBuffer,
