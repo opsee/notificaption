@@ -1,0 +1,12 @@
+{
+  "s3": {
+    "bucket": "opsee-notificaption-screenshots"
+  },
+
+  "emissary": {
+    "protocol": "https",
+    "hostname": "app.opsee.com",
+    "port": 80,
+    "basePath": "/check"
+  }
+}

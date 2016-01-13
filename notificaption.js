@@ -51,7 +51,7 @@ function generateScreenshot(checkData) {
   const checkPath = [emissaryConfig.basePath, checkID, 'screenshot'].join('/');
 
   const uri = URL.format({
-    protocol: 'http',
+    protocol: emissaryConfig.protocol,
     hostname: emissaryConfig.hostname,
     port: emissaryConfig.port,
     pathname: checkPath
