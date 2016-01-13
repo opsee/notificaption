@@ -5,6 +5,12 @@ const Nightmare = require('nightmare');
 const Path = require('path');
 const URL = require('url');
 
+if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
+  throw new Error(
+    'Missing required AWS_ACCESS_KEY_ID and/or AWS_SECRET_ACCESS_KEY in environment'
+  );
+}
+
 const s3 = new AWS.S3({
   params: {
     Bucket: config.s3.bucket,
