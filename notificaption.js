@@ -94,6 +94,7 @@ function generateS3Key(checkID) {
  * @returns {Promise}
  */
 function uploadScreenshot(data) {
+  const checkID = data.check.id;
   logger.info(`Uploading screenshot for check ${checkID}`);
 
   return new Promise((resolve, reject) => {
