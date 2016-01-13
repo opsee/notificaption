@@ -56,7 +56,7 @@ function generateScreenshot(checkData) {
   logger.info(`Generating screenshot for check ${checkID} from Emissary running at ${uri}`);
 
   return new Promise((resolve, reject) => {
-    webshot(uri, (err, stream) => {
+    webshot('google.com', (err, stream) => {
       if (err) {
         reject(err);
       } else {
