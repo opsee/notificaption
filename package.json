@@ -9,7 +9,7 @@
     "docker-build": "docker build -t quay.io/opsee/notificaption .",
     "docker-push": "docker push quay.io/opsee/notificaption:latest",
     "docker-publish": "npm run docker-build && npm run docker-push",
-    "docker-run": "docker run -p 9099:9099 quay.io/opsee/notificaption"
+    "docker-run": "docker run -p 9099:9099 -e AWS_DEFAULT_REGION -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY --net='host' quay.io/opsee/notificaption"
   },
   "repository": {
     "type": "git",
@@ -25,8 +25,8 @@
     "aws-sdk": "^2.2.26",
     "config": "^1.17.1",
     "eslint": "^1.10.3",
-    "nightmare": "^2.1.2",
     "restify": "^4.0.3",
+    "webshot": "^0.17.0",
     "winston": "^2.1.1"
   }
 }
