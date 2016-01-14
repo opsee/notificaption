@@ -1,6 +1,7 @@
 const logger = require('./utils/logger');
 const notificaption = require('./notificaption');
 const restify = require('restify');
+const test = require('./test');
 
 const server = restify.createServer({
   name: 'notificaption'
@@ -26,6 +27,7 @@ function postScreenshot(req, res, next) {
 
 server.get('/', (req, res, next) => {
   logger.info('ping');
+  test.test();
   res.send('hello world');
   next();
 });

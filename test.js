@@ -28,11 +28,6 @@ const uri = URL.format({
 console.log(uri);
 
 
-vo(screenshot, upload)((err, result) => {
-  if (err)
-  console.log('done');
-  console.log(result);
-});
 
 function *screenshot() {
   console.log('screenshotting...');
@@ -60,4 +55,19 @@ function upload(imageBuffer, done) {
     if (err) return done(err);
     return done(null, result);
   });
+}
+
+module.exports = {
+  test: function() {
+    vo(screenshot, upload)((err, result) => {
+      if (err) {
+        console.log('error');
+        console.log(err);
+      }
+      else {
+        console.log('done');
+        console.log(result);
+      }
+    });
+  }
 }
