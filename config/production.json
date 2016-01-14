@@ -1,6 +1,6 @@
 {
   "s3": {
-    "bucket": "opsee-notificaption-screenshots"
+    "bucket": "opsee-notificaption-images"
   },
 
   "emissary": {

@@ -2,20 +2,15 @@ const AWS = require('aws-sdk');
 const config = require('config');
 const fs = require('fs');
 const logger = require('./utils/logger');
-const Nightmare = require('nightmare');
 const Path = require('path');
+const Readable = require('stream').Readable;
 const URL = require('url');
+const webshot = require('webshot');
 
 const s3 = new AWS.S3({
   params: {
-    Bucket: config.s3.bucket,
-    Key: process.env.NOTIFICAPTION_S3_KEY
+    Bucket: config.s3.bucket
   }
-});
-
-const nightmare = Nightmare({
-  width: 400,
-  height: 1200
 });
 
 /**
@@ -60,18 +55,32 @@ function generateScreenshot(checkData) {
 
   logger.info(`Generating screenshot for check ${checkID} from Emissary running at ${uri}`);
 
-  // Nightmare is based on "thenables", which don't seem to resolve to true
-  // promises. In order for further .then()s to work down the chain, we wrap
-  // it explicitly in a promise. (See http://stackoverflow.com/a/32589625)
-  return Promise.resolve(nightmare
-    .goto(uri)
-    .screenshot()
-  ).then(imageBuffer => {
-    logger.info(`Generated screenshot for check ${checkID}`);
-    return {
-      check: checkData,
-      imageBuffer: imageBuffer
-    };
+  const webshotOpts = {
+    screenSize: {
+      width: 700,
+      height: 480
+    },
+    shotSize: {
+      width: 700,
+      height: 'all'
+    },
+
+    takeShotOnCallback: true
+  };
+
+  return new Promise((resolve, reject) => {
+    webshot(uri, null, webshotOpts, (err, stream) => {
+      if (err) {
+        reject(err);
+      } else {
+        logger.info(`Generated screenshot for check ${checkID}`);
+        const readableStream = new Readable().wrap(stream);
+        resolve({
+          check: checkData,
+          imageBuffer: readableStream
+        });
+      }
+    });
   });
 }
 
@@ -95,7 +104,7 @@ function generateS3Key(checkID) {
  */
 function uploadScreenshot(data) {
   const checkID = data.check.id;
-  logger.info(`Uploading screenshot for check ${checkID}`);
+  logger.info(`Uploading screenshot for check ${checkID} to S3 bucket ${config.s3.bucket}`);
 
   return new Promise((resolve, reject) => {
     s3.upload({
