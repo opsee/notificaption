@@ -29,7 +29,8 @@ console.log(uri);
 
 
 
-function *screenshot() {
+function *screenshot(checkData) {
+  console.log(checkData);
   console.log('screenshotting...');
   var nightmare = Nightmare();
   var screenshot = yield nightmare
@@ -58,16 +59,22 @@ function upload(imageBuffer, done) {
 }
 
 module.exports = {
-  test: function() {
-    vo(screenshot, upload)((err, result) => {
-      if (err) {
-        console.log('error');
-        console.log(err);
-      }
-      else {
-        console.log('done');
-        console.log(result);
-      }
+  test: function(checkData) {
+    return new Promise((resolve, reject) => {
+      vo(screenshot, upload)(checkData, (err, result) => {
+        if (err) {
+          console.log('error');
+          console.log(err);
+          reject(err);
+        }
+        else {
+          console.log('done');
+          console.log(result);
+          resolve({
+            uri: result.Location
+          });
+        }
+      });
     });
   }
 }
