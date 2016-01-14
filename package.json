@@ -9,7 +9,8 @@
     "docker-build": "docker build -t quay.io/opsee/notificaption:latest .",
     "docker-push": "docker push quay.io/opsee/notificaption:latest",
     "docker-publish": "npm run build && npm run docker-push",
-    "docker-run": "docker run -p 9099:9099 -e AWS_DEFAULT_REGION -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY --net='host' quay.io/opsee/notificaption"
+    "docker-run": "docker run -p 9099:9099 -e AWS_DEFAULT_REGION -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY --net='host' quay.io/opsee/notificaption",
+    "docker-debug": "docker run -i -t --entrypoint /bin/bash -e AWS_DEFAULT_REGION -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY quay.io/opsee/notificaption"
   },
   "repository": {
     "type": "git",
