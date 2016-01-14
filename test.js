@@ -25,9 +25,10 @@ const uri = URL.format({
   pathname: "/check/21G057gL7oNtKKDW64g9Dl/screenshot"
 });
 
-console.log(uri);
-
-
+function generateS3Key() {
+  const now = new Date().getTime();
+  return `${now}`;
+}
 
 function *screenshot(checkData) {
   console.log(checkData);
@@ -50,7 +51,7 @@ function upload(imageBuffer, done) {
     Body: imageBuffer,
     ContentEncoding: 'base64',
     ContentType: 'image/jpeg',
-    Key: "saratesting"
+    Key: generateS3Key()
   })
   .send((err, result) => {
     if (err) return done(err);
