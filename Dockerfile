@@ -12,4 +12,4 @@ COPY . /usr/src/app
 
 EXPOSE 9099
 ENV NODE_ENV 'production'
-CMD [ "node", "/usr/src/app/server.js" ]
+CMD [ "node", "/usr/src/app/test.js" ]
