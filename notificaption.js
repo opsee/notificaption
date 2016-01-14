@@ -56,16 +56,17 @@ function generateScreenshot(checkData) {
   logger.info(`Generating screenshot for check ${checkID} from Emissary running at ${uri}`);
 
   const webshotOpts = {
-      screenSize: {
-        width: 700,
-        height: 480
-      },
-      shotSize: {
-        width: 700,
-        height: 'all'
-      },
-      takeShotOnCallback: true
-    };
+    screenSize: {
+      width: 700,
+      height: 480
+    },
+    shotSize: {
+      width: 700,
+      height: 'all'
+    },
+
+    takeShotOnCallback: true
+  };
 
   return new Promise((resolve, reject) => {
     webshot(uri, null, webshotOpts, (err, stream) => {
