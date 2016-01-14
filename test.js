@@ -1,7 +1,9 @@
 const AWS = require('aws-sdk');
+const config = require('config');
+const logger = require('./utils/logger');
 var Nightmare = require('nightmare');
 var vo = require('vo');
-var URL = require('url');
+const URL = require('url');
 
 const s3 = new AWS.S3({
   params: {
@@ -9,49 +11,77 @@ const s3 = new AWS.S3({
   }
 });
 
-const config = {
-  "emissary": {
-    "protocol": "https",
-    "hostname": "app.opsee.com",
-    "port": null,
-    "basePath": "/check"
-  }
-}
-
-const uri = URL.format({
-  protocol: config.emissary.protocol,
-  hostname: config.emissary.hostname,
-  port: config.emissary.port,
-  pathname: "/check/21G057gL7oNtKKDW64g9Dl/screenshot"
-});
-
-function generateS3Key() {
+/**
+ * Returns a unique identifier for screenshots that are uploaded to S3.
+ * The ID is composed of the check ID of the screenshot and the current time
+ * (in milliseconds). The timestamp ensures that multiple check failures will
+ * not overwrite one another.
+ *
+ * @param {String} checkID
+ * @returns {String}
+ */
+function generateS3Key(checkID) {
   const now = new Date().getTime();
-  return `${now}`;
+  return `${checkID}_${now}`;
 }
 
+/**
+ * @param {String} checkID
+ * @returns {String}
+ */
+function buildEmissaryURI(checkID) {
+  const emissaryConfig = config.emissary;
+  const checkPath = [emissaryConfig.basePath, checkID, 'screenshot'].join('/');
+
+  return URL.format({
+    protocol: emissaryConfig.protocol,
+    hostname: emissaryConfig.hostname,
+    port: emissaryConfig.port,
+    pathname: checkPath
+  });
+}
+
+/**
+ * @param {object} checkData
+ * @param {String} checkData.id
+ * @returns {Buffer}
+ */
 function *screenshot(checkData) {
-  console.log(checkData);
-  console.log('screenshotting...');
-  var nightmare = Nightmare();
-  var screenshot = yield nightmare
+  const checkID = checkData.id;
+  const uri = buildEmissaryURI(checkID);
+
+  logger.info(`Generating screenshot for check ${checkID} from Emissary running at ${uri}`);
+
+  const nightmare = Nightmare();
+  const screenshot = yield nightmare
     .goto(uri)
     .wait(1000)
     .screenshot()
 
-  console.log("Got screenshot");
-  return screenshot;
+  logger.info(`Generated screenshot for check ${checkID}`);
+
+  return {
+    check: checkData,
+    imageBuffer: screenshot
+  };
 }
 
-function upload(imageBuffer, done) {
-  console.log("uploading...");
-  console.log(imageBuffer);
+/**
+ * @param {object} data.checkData
+ * @param {String} data.checkData.id
+ * @param {Buffer} data.imageBuffer
+ * @returns {Promise}
+ */
+function upload(data, done) {
+  const checkID = data.check.id;
+
+  logger.info(`Uploading screenshot for check ${checkID} to S3 bucket ${config.s3.bucket}`);
 
   s3.upload({
-    Body: imageBuffer,
+    Body: data.imageBuffer,
     ContentEncoding: 'base64',
     ContentType: 'image/jpeg',
-    Key: generateS3Key()
+    Key: generateS3Key(checkID)
   })
   .send((err, result) => {
     if (err) return done(err);
@@ -63,18 +93,8 @@ module.exports = {
   test: function(checkData) {
     return new Promise((resolve, reject) => {
       vo(screenshot, upload)(checkData, (err, result) => {
-        if (err) {
-          console.log('error');
-          console.log(err);
-          reject(err);
-        }
-        else {
-          console.log('done');
-          console.log(result);
-          resolve({
-            uri: result.Location
-          });
-        }
+        if (err) reject(err);
+        else resolve({ uri: result.Location });
       });
     });
   }
