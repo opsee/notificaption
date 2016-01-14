@@ -19,4 +19,4 @@ COPY . /usr/src/app
 
 # Start the server
 EXPOSE 9099
-CMD xvfb-run --server-args="-screen 9 1280x2000x24" node test.js
+CMD xvfb-run --server-args="-screen 9 1280x2000x24" node server.js
