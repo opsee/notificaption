@@ -1,8 +1,11 @@
 const AWS = require('aws-sdk');
 const config = require('config');
+const fs = require('fs');
 const logger = require('./utils/logger');
-var Nightmare = require('nightmare');
-var vo = require('vo');
+const Nightmare = require('nightmare');
+const Path = require('path');
+const Readable = require('stream').Readable;
+const vo = require('vo');
 const URL = require('url');
 
 const s3 = new AWS.S3({
@@ -42,11 +45,33 @@ function buildEmissaryURI(checkID) {
 }
 
 /**
+ * Writes the POSTed check data to a .json file for to populate the /check
+ * page in Emissary.
+ *
+ * @param {object} checkData
+ * @param {function} done
+ *
+ * @returns {object} data
+ * @returns {object} data.check
+ */
+function dumpToFile(checkData, done) {
+  const checkID = checkData.id;
+  const filename = `${checkID}.json`;
+  const filePath = Path.resolve(`./tmp/checks/${filename}`);
+
+  fs.writeFile(filePath, JSON.stringify(checkData), err => {
+    if (err) done(err);
+    else done(null, { check: checkData });
+  });
+}
+
+/**
  * @param {object} checkData
  * @param {String} checkData.id
  * @returns {Buffer}
  */
-function *screenshot(checkData) {
+function *screenshot(data) {
+  const checkData = data.check;
   const checkID = checkData.id;
   const uri = buildEmissaryURI(checkID);
 
@@ -92,7 +117,7 @@ function upload(data, done) {
 module.exports = {
   screenshot: function(checkData) {
     return new Promise((resolve, reject) => {
-      vo(screenshot, upload)(checkData, (err, result) => {
+      vo(dumpToFile, screenshot, upload)(checkData, (err, result) => {
         if (err) reject(err);
         else resolve({ uri: result.Location });
       });
