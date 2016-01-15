@@ -1,4 +1,5 @@
 # notificaption
+[![Circle CI](https://circleci.com/gh/opsee/notificaption.svg?style=svg)](https://circleci.com/gh/opsee/notificaption)
 
 The notificaption service takes screenshots of failing checks in Emissary to be sent with notifications. Screenshots result in a more consistent appearance across notification mediums (Slack vs. email). 
 
