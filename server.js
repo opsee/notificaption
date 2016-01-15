@@ -1,6 +1,6 @@
 const logger = require('./utils/logger');
-const restify = require('restify');
 const notificaption = require('./notificaption');
+const restify = require('restify');
 
 const server = restify.createServer({
   name: 'notificaption'
@@ -12,6 +12,7 @@ server.use(restify.CORS());
 function postScreenshot(req, res, next) {
   const checkID = req.params.id;
   logger.info(`Screenshot request for check ${checkID}`);
+
   notificaption.screenshot(req.params)
     .then(resp => {
       res.send({ uri: resp.uri });
