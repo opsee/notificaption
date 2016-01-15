@@ -55,7 +55,7 @@ function *screenshot(checkData) {
   const nightmare = Nightmare();
   const screenshot = yield nightmare
     .goto(uri)
-    .wait(1000)
+    .wait(1500)
     .screenshot()
 
   logger.info(`Generated screenshot for check ${checkID}`);
