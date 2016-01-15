@@ -10,7 +10,7 @@ const URL = require('url');
 
 const s3 = new AWS.S3({
   params: {
-    Bucket: "opsee-notificaption-images"
+    Bucket: config.s3.bucket
   }
 });
 
