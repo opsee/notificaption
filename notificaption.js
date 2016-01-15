@@ -86,9 +86,24 @@ function dumpToFile(checkData, done) {
   });
 }
 
-function uploadJSON(data) {
-  console.log("DATA", data);
-  return { uri: data.filename };
+function uploadJSON(data, done) {
+  const json = JSON.stringify(data.check);
+  const filename = `${data.filename}.json`;
+
+  logger.info(`Uploading json for check ${data.check.id} to S3 bucket ${config.s3.bucket} as ${filename}`);
+
+  s3.upload({
+    Body: json,
+    ContentType: 'application/json',
+    Key: filename
+  })
+  .send((err, result) => {
+    if (err) return done(err);
+
+    return done(null, {
+       uri: result.Location
+    });
+  });
 }
 
 /**
@@ -138,7 +153,7 @@ function *screenshot(data) {
  * @param {Buffer} data.imageBuffer
  * @returns {Promise}
  */
-function upload(data, done) {
+function uploadImage(data, done) {
   const checkID = data.check.id;
 
   logger.info(`Uploading screenshot for check ${checkID} to S3 bucket ${config.s3.bucket}`);
@@ -166,7 +181,7 @@ module.exports = {
     return new Promise((resolve, reject) => {
 
       const pipeline = vo(dumpToFile, {
-        image: vo(screenshot, upload),
+        image: vo(screenshot, uploadImage),
         json: vo(uploadJSON)
       });
 
