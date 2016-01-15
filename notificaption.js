@@ -57,12 +57,6 @@ function buildEmissaryURI(checkID) {
  * might fill up eventually with this approach (unless we delete the file
  * after the screenshot is taken, but that might get SUPER flakey if the
  * screenshot is only contingent on a wait()...)
- *
- * @param {object} checkData
- * @param {function} done
- *
- * @returns {object} data
- * @returns {object} data.check
  */
 function dumpToFile(checkData, done) {
   const checkID = checkData.id;
@@ -86,33 +80,17 @@ function dumpToFile(checkData, done) {
   });
 }
 
-function uploadJSON(data, done) {
+function formatJSON(data, done) {
   const json = JSON.stringify(data.check);
   const filename = `${data.filename}.json`;
 
-  logger.info(`Uploading json for check ${data.check.id} to S3 bucket ${config.s3.bucket} as ${filename}`);
-
-  s3.upload({
+  done(null, {
     Body: json,
     ContentType: 'application/json',
     Key: filename
-  })
-  .send((err, result) => {
-    if (err) return done(err);
-
-    return done(null, {
-       uri: result.Location
-    });
   });
 }
 
-/**
- * @param {object} data
- * @param {String} data.filename
- * @param {object} data.check
- * @param {String} data.check.id
- * @returns {Buffer}
- */
 function *screenshot(data) {
   const checkData = data.check;
   const checkID = checkData.id;
@@ -140,36 +118,20 @@ function *screenshot(data) {
   logger.info(`Generated screenshot for check ${checkID}`);
 
   return {
-    check: checkData,
-    filename: data.filename,
-    imageBuffer: imageBuffer
+    Key: data.filename,
+    Body: imageBuffer,
+    ContentEncoding: 'base64',
+    ContentType: 'image/jpeg',
   };
 }
 
-/**
- * @param {String} data.filename
- * @param {object} data.checkData
- * @param {String} data.checkData.id
- * @param {Buffer} data.imageBuffer
- * @returns {Promise}
- */
-function uploadImage(data, done) {
-  const checkID = data.check.id;
+function upload(data, done) {
+  logger.info(`Uploading file ${data.Key} to bucket ${config.s3.bucket}`);
 
-  logger.info(`Uploading screenshot for check ${checkID} to S3 bucket ${config.s3.bucket}`);
-
-  s3.upload({
-    Body: data.imageBuffer,
-    ContentEncoding: 'base64',
-    ContentType: 'image/jpeg',
-    Key: data.filename
-  })
-  .send((err, result) => {
-    if (err) return done(err);
-
-    return done(null, {
-       uri: result.Location
-    });
+  s3.upload(data)
+    .send((err, result) => {
+      if (err) return done(err);
+      return done(null, { uri: result.Location });
   });
 }
 
@@ -181,8 +143,8 @@ module.exports = {
     return new Promise((resolve, reject) => {
 
       const pipeline = vo(dumpToFile, {
-        image: vo(screenshot, uploadImage),
-        json: vo(uploadJSON)
+        image: vo(screenshot, upload),
+        json: vo(formatJSON, upload)
       });
 
       pipeline.catch(err => {
