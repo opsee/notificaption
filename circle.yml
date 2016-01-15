@@ -12,6 +12,7 @@ machine:
 test:
   override:
     - docker run -d -p 9099:80 quay.io/opsee/notificaption:latest; sleep 10;
+    - npm run lint
 deployment:
   hub:
     branch: master

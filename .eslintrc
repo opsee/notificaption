@@ -1,6 +1,7 @@
 {
   "env": {
-    "node": true
+    "node": true,
+    "browser": true
   },
   "ecmaFeatures": {
     "arrowFunctions": true,
@@ -9,7 +10,7 @@
     "defaultParams": true,
     "destructuring": true,
     "forOf": true,
-    "generators": false,
+    "generators": true,
     "modules": true,
     "objectLiteralComputedProperties": true,
     "objectLiteralDuplicateProperties": false,
