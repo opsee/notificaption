@@ -53,6 +53,11 @@ function buildEmissaryURI(checkID) {
  * Writes the POSTed check data to a .json file for to populate the /check
  * page in Emissary.
  *
+ * TODO can we do away with this and have Emissary just use the S3 url? Memory
+ * might fill up eventually with this approach (unless we delete the file
+ * after the screenshot is taken, but that might get SUPER flakey if the
+ * screenshot is only contingent on a wait()...)
+ *
  * @param {object} checkData
  * @param {function} done
  *
@@ -61,7 +66,8 @@ function buildEmissaryURI(checkID) {
  */
 function dumpToFile(checkData, done) {
   const checkID = checkData.id;
-  const filename = `${checkID}.json`;
+  const s3Key = generateS3Key(checkID);
+  const filename = `${s3Key}.json`;
   const filePath = Path.resolve(`./tmp/checks/${filename}`);
 
   logger.info(`Dumping to file as ${filePath}`);
@@ -72,14 +78,19 @@ function dumpToFile(checkData, done) {
       done(err);
     } else {
       logger.info(`Dumped to file as ${filePath}`);
-      done(null, { check: checkData });
+      done(null, {
+        check: checkData,
+        filename: s3Key
+      });
     }
   });
 }
 
 /**
- * @param {object} checkData
- * @param {String} checkData.id
+ * @param {object} data
+ * @param {String} data.filename
+ * @param {object} data.check
+ * @param {String} data.check.id
  * @returns {Buffer}
  */
 function *screenshot(data) {
@@ -110,11 +121,13 @@ function *screenshot(data) {
 
   return {
     check: checkData,
+    filename: data.filename,
     imageBuffer: imageBuffer
   };
 }
 
 /**
+ * @param {String} data.filename
  * @param {object} data.checkData
  * @param {String} data.checkData.id
  * @param {Buffer} data.imageBuffer
@@ -133,7 +146,12 @@ function upload(data, done) {
   })
   .send((err, result) => {
     if (err) return done(err);
-    return done(null, result);
+
+    return done(null, {
+      filename: data.filename,
+      check: data.check,
+      imageURL: result.Location
+    });
   });
 }
 
@@ -142,7 +160,7 @@ module.exports = {
     return new Promise((resolve, reject) => {
       vo(dumpToFile, screenshot, upload)(checkData, (err, result) => {
         if (err) reject(err);
-        else resolve({ uri: result.Location });
+        else resolve(result);
       });
     });
   }
