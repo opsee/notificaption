@@ -60,8 +60,7 @@ function buildEmissaryURI(checkID) {
  */
 function dumpToFile(checkData, done) {
   const checkID = checkData.id;
-  const s3Key = generateS3Key(checkID);
-  const filename = `${s3Key}.json`;
+  const filename = `${checkID}.json`;
   const filePath = Path.resolve(`./tmp/checks/${filename}`);
 
   logger.info(`Dumping to file as ${filePath}`);
@@ -74,7 +73,7 @@ function dumpToFile(checkData, done) {
       logger.info(`Dumped to file as ${filePath}`);
       done(null, {
         check: checkData,
-        filename: s3Key
+        filename: generateS3Key(checkID)
       });
     }
   });
