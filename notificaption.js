@@ -53,15 +53,15 @@ function buildEmissaryURI(checkID) {
  * Writes the POSTed check data to a .json file for to populate the /check
  * page in Emissary.
  *
- * @param {object} checkData
- * @param {function} done
- *
- * @returns {object} data
- * @returns {object} data.check
+ * TODO can we do away with this and have Emissary just use the S3 url? Memory
+ * might fill up eventually with this approach (unless we delete the file
+ * after the screenshot is taken, but that might get SUPER flakey if the
+ * screenshot is only contingent on a wait()...)
  */
 function dumpToFile(checkData, done) {
   const checkID = checkData.id;
-  const filename = `${checkID}.json`;
+  const s3Key = generateS3Key(checkID);
+  const filename = `${s3Key}.json`;
   const filePath = Path.resolve(`./tmp/checks/${filename}`);
 
   logger.info(`Dumping to file as ${filePath}`);
@@ -72,16 +72,25 @@ function dumpToFile(checkData, done) {
       done(err);
     } else {
       logger.info(`Dumped to file as ${filePath}`);
-      done(null, { check: checkData });
+      done(null, {
+        check: checkData,
+        filename: s3Key
+      });
     }
   });
 }
 
-/**
- * @param {object} checkData
- * @param {String} checkData.id
- * @returns {Buffer}
- */
+function formatJSON(data, done) {
+  const json = JSON.stringify(data.check);
+  const filename = `${data.filename}.json`;
+
+  done(null, {
+    Body: json,
+    ContentType: 'application/json',
+    Key: filename
+  });
+}
+
 function *screenshot(data) {
   const checkData = data.check;
   const checkID = checkData.id;
@@ -109,40 +118,42 @@ function *screenshot(data) {
   logger.info(`Generated screenshot for check ${checkID}`);
 
   return {
-    check: checkData,
-    imageBuffer: imageBuffer
+    Key: data.filename,
+    Body: imageBuffer,
+    ContentEncoding: 'base64',
+    ContentType: 'image/jpeg'
   };
 }
 
-/**
- * @param {object} data.checkData
- * @param {String} data.checkData.id
- * @param {Buffer} data.imageBuffer
- * @returns {Promise}
- */
 function upload(data, done) {
-  const checkID = data.check.id;
+  logger.info(`Uploading file ${data.Key} to bucket ${config.s3.bucket}`);
 
-  logger.info(`Uploading screenshot for check ${checkID} to S3 bucket ${config.s3.bucket}`);
-
-  s3.upload({
-    Body: data.imageBuffer,
-    ContentEncoding: 'base64',
-    ContentType: 'image/jpeg',
-    Key: generateS3Key(checkID)
-  })
-  .send((err, result) => {
-    if (err) return done(err);
-    return done(null, result);
-  });
+  s3.upload(data)
+    .send((err, result) => {
+      if (err) return done(err);
+      return done(null, { uri: result.Location });
+    });
 }
 
 module.exports = {
+  /**
+   * @param {object} checkData
+   */
   screenshot: (checkData) => {
     return new Promise((resolve, reject) => {
-      vo(dumpToFile, screenshot, upload)(checkData, (err, result) => {
+      const pipeline = vo(dumpToFile, {
+        image: vo(screenshot, upload),
+        json: vo(formatJSON, upload)
+      });
+
+      pipeline.catch(err => {
+        logger.error(err);
+        reject(err);
+      });
+
+      pipeline(checkData, (err, results) => {
         if (err) reject(err);
-        else resolve({ uri: result.Location });
+        else resolve(results);
       });
     });
   }

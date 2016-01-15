@@ -15,7 +15,7 @@ function postScreenshot(req, res, next) {
 
   notificaption.screenshot(req.params)
     .then(resp => {
-      res.send({ uri: resp.uri });
+      res.send(resp);
       next();
     })
     .catch(err => {
