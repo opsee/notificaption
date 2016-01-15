@@ -65,9 +65,17 @@ function dumpToFile(checkData, done) {
   const filename = `${checkID}.json`;
   const filePath = Path.resolve(`./tmp/checks/${filename}`);
 
+  logger.info(`Dumping to file as ${filePath}`);
+
   fs.writeFile(filePath, JSON.stringify(checkData), err => {
-    if (err) done(err);
-    else done(null, { check: checkData });
+    if (err) {
+      logger.error(`Error dumping to file as ${filePath}`);
+      done(err);
+    }
+    else {
+      logger.info(`Dumped to file as ${filePath}`);
+      done(null, { check: checkData });
+   }
   });
 }
 
