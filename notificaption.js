@@ -77,10 +77,26 @@ function *screenshot(data) {
 
   logger.info(`Generating screenshot for check ${checkID} from Emissary running at ${uri}`);
 
-  const nightmare = Nightmare();
-  const screenshot = yield nightmare
+  const nightmare = Nightmare({
+    show: false,
+    width: 1024,
+    height: 768
+  });
+
+  const dimensions = yield nightmare
     .goto(uri)
-    .wait(1500)
+    .wait('body')
+    .evaluate(function() {
+      const body = document.querySelector('body');
+      return {
+        height: body.scrollHeight,
+        width:body.scrollWidth
+      }
+    });
+
+  const screenshot = yield nightmare
+    .viewport(dimensions.width, dimensions.height + 50)
+    .wait(1000)
     .screenshot()
 
   logger.info(`Generated screenshot for check ${checkID}`);
