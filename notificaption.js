@@ -121,7 +121,7 @@ function *screenshot(data) {
     Key: data.filename,
     Body: imageBuffer,
     ContentEncoding: 'base64',
-    ContentType: 'image/jpeg',
+    ContentType: 'image/jpeg'
   };
 }
 
@@ -132,7 +132,7 @@ function upload(data, done) {
     .send((err, result) => {
       if (err) return done(err);
       return done(null, { uri: result.Location });
-  });
+    });
 }
 
 module.exports = {
@@ -141,7 +141,6 @@ module.exports = {
    */
   screenshot: (checkData) => {
     return new Promise((resolve, reject) => {
-
       const pipeline = vo(dumpToFile, {
         image: vo(screenshot, upload),
         json: vo(formatJSON, upload)
