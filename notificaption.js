@@ -14,6 +14,12 @@ const s3 = new AWS.S3({
   }
 });
 
+const nightmare = Nightmare({
+  show: false,
+  width: 1024,
+  height: 768
+});
+
 /**
  * Returns a unique identifier for screenshots that are uploaded to S3.
  * The ID is composed of the check ID of the screenshot and the current time
@@ -76,12 +82,6 @@ function *screenshot(data) {
   const uri = buildEmissaryURI(checkID);
 
   logger.info(`Generating screenshot for check ${checkID} from Emissary running at ${uri}`);
-
-  const nightmare = Nightmare({
-    show: false,
-    width: 1024,
-    height: 768
-  });
 
   const dimensions = yield nightmare
     .goto(uri)
