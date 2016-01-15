@@ -1,5 +1,5 @@
 # notificaption
-[![Circle CI](https://circleci.com/gh/opsee/notificaption.svg?style=shield&circle-token=91edb2373c7b6cfb53108cdc135ef6623e3ba56c)](https://circleci.com/gh/opsee/notificaption)
+[![Circle CI](https://circleci.com/gh/opsee/notificaption.svg?style=shield&circle-token=91edb2373c7b6cfb53108cdc135ef6623e3ba56c)](https://circleci.com/gh/opsee/notificaption) [![Docker Repository on Quay](https://quay.io/repository/opsee/notificaption/status?token=3efac0f6-ffe0-48cd-92d0-3a4620b0f981 "Docker Repository on Quay")](https://quay.io/repository/opsee/notificaption)
 
 The notificaption service takes screenshots of failing checks in Emissary to be sent with notifications. Screenshots result in a more consistent appearance across notification mediums (Slack vs. email). 
 
