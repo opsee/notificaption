@@ -86,6 +86,11 @@ function dumpToFile(checkData, done) {
   });
 }
 
+function uploadJSON(data) {
+  console.log("DATA", data);
+  return { uri: data.filename };
+}
+
 /**
  * @param {object} data
  * @param {String} data.filename
@@ -142,25 +147,37 @@ function upload(data, done) {
     Body: data.imageBuffer,
     ContentEncoding: 'base64',
     ContentType: 'image/jpeg',
-    Key: generateS3Key(checkID)
+    Key: data.filename
   })
   .send((err, result) => {
     if (err) return done(err);
 
     return done(null, {
-      filename: data.filename,
-      check: data.check,
-      imageURL: result.Location
+       uri: result.Location
     });
   });
 }
 
 module.exports = {
+  /**
+   * @param {object} checkData
+   */
   screenshot: (checkData) => {
     return new Promise((resolve, reject) => {
-      vo(dumpToFile, screenshot, upload)(checkData, (err, result) => {
+
+      const pipeline = vo(dumpToFile, {
+        image: vo(screenshot, upload),
+        json: vo(uploadJSON)
+      });
+
+      pipeline.catch(err => {
+        logger.error(err);
+        reject(err);
+      });
+
+      pipeline(checkData, (err, results) => {
         if (err) reject(err);
-        else resolve(result);
+        else resolve(results);
       });
     });
   }
