@@ -16,7 +16,7 @@ const s3 = new AWS.S3({
 
 const nightmare = Nightmare({
   show: false,
-  width: 1024,
+  width: 700,
   height: 768
 });
 
@@ -84,6 +84,7 @@ function *screenshot(data) {
   logger.info(`Generating screenshot for check ${checkID} from Emissary running at ${uri}`);
 
   const dimensions = yield nightmare
+    .viewport(700, 1)
     .goto(uri)
     .wait('body')
     .evaluate(function() {
