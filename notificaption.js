@@ -4,7 +4,6 @@ const fs = require('fs');
 const logger = require('./utils/logger');
 const Nightmare = require('nightmare');
 const Path = require('path');
-const Readable = require('stream').Readable;
 const vo = require('vo');
 const URL = require('url');
 
@@ -71,11 +70,10 @@ function dumpToFile(checkData, done) {
     if (err) {
       logger.error(`Error dumping to file as ${filePath}`);
       done(err);
-    }
-    else {
+    } else {
       logger.info(`Dumped to file as ${filePath}`);
       done(null, { check: checkData });
-   }
+    }
   });
 }
 
@@ -95,24 +93,24 @@ function *screenshot(data) {
     .viewport(700, 1)
     .goto(uri)
     .wait('body')
-    .evaluate(function() {
+    .evaluate(() => {
       const body = document.querySelector('body');
       return {
         height: body.scrollHeight,
         width: body.scrollWidth
-      }
+      };
     });
 
-  const screenshot = yield nightmare
+  const imageBuffer = yield nightmare
     .viewport(dimensions.width, dimensions.height + 50) // Magic number??
     .wait(1000)
-    .screenshot()
+    .screenshot();
 
   logger.info(`Generated screenshot for check ${checkID}`);
 
   return {
     check: checkData,
-    imageBuffer: screenshot
+    imageBuffer: imageBuffer
   };
 }
 
@@ -140,7 +138,7 @@ function upload(data, done) {
 }
 
 module.exports = {
-  screenshot: function(checkData) {
+  screenshot: (checkData) => {
     return new Promise((resolve, reject) => {
       vo(dumpToFile, screenshot, upload)(checkData, (err, result) => {
         if (err) reject(err);
@@ -148,4 +146,4 @@ module.exports = {
       });
     });
   }
-}
+};
