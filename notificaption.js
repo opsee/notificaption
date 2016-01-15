@@ -90,12 +90,12 @@ function *screenshot(data) {
       const body = document.querySelector('body');
       return {
         height: body.scrollHeight,
-        width:body.scrollWidth
+        width: body.scrollWidth
       }
     });
 
   const screenshot = yield nightmare
-    .viewport(dimensions.width, dimensions.height + 50)
+    .viewport(dimensions.width, dimensions.height + 50) // Magic number??
     .wait(1000)
     .screenshot()
 
