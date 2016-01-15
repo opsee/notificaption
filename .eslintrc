@@ -9,7 +9,7 @@
     "defaultParams": true,
     "destructuring": true,
     "forOf": true,
-    "generators": false,
+    "generators": true,
     "modules": true,
     "objectLiteralComputedProperties": true,
     "objectLiteralDuplicateProperties": false,
