@@ -57,6 +57,8 @@ function *screenshot(data) {
   const jsonURI = data.json;
   const uri = buildEmissaryURI(checkID, jsonURI);
 
+  logger.info(`[${checkID}] Requesting screenshot from ${uri}`);
+
   const dimensions = yield nightmare
     .viewport(700, 1)
     .goto(uri)
@@ -101,6 +103,8 @@ function uploadData(data, done) {
     .send((err, result) => {
       if (err) return done(err);
 
+      logger.info(`[${checkData.id}] Uploaded JSON to ${result.Location}`);
+
       return done(null, {
         key: key,
         check: checkData,
@@ -128,12 +132,11 @@ function uploadScreenshot(data, done) {
     .send((error, response) => {
       if (error) return done(error);
 
-      const imageURI = response.Location;
-      const result = assign({}, data, {
-        image: imageURI
-      });
+      logger.info(`[${data.check.id}] Uploaded image to ${response.Location}`);
 
-      return done(null, result);
+      return done(null, assign({}, data, {
+        image: response.Location
+      }));
     });
   });
 }
@@ -159,6 +162,8 @@ module.exports = {
    */
   screenshot(checkData) {
     return new Promise((resolve, reject) => {
+      logger.info(`[${checkData.id}] Received screenshot request`);
+
       const pipeline = vo(uploadData, uploadScreenshot, formatResponse);
 
       pipeline.catch(err => {
