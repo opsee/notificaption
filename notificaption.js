@@ -36,7 +36,7 @@ function generateS3Key(checkID) {
  * @param {String} checkID
  * @returns {String}
  */
-function buildEmissaryURI(checkID) {
+function buildEmissaryURI(checkID, jsonURI) {
   const emissaryConfig = config.emissary;
   const checkPath = [emissaryConfig.basePath, checkID, 'screenshot'].join('/');
 
@@ -44,19 +44,24 @@ function buildEmissaryURI(checkID) {
     protocol: emissaryConfig.protocol,
     hostname: emissaryConfig.hostname,
     port: emissaryConfig.port,
-    pathname: checkPath
+    pathname: checkPath,
+    query: {
+      json: jsonURI
+    }
   });
 }
 
 function *screenshot(data) {
   const checkData = data.check;
   const checkID = checkData.id;
-  const uri = buildEmissaryURI(checkID);
+  const jsonURI = data.json;
+  const uri = buildEmissaryURI(checkID, jsonURI);
 
   const dimensions = yield nightmare
     .viewport(700, 1)
     .goto(uri)
     .wait('body')
+    .wait(1000)
     .evaluate(() => {
       const body = document.querySelector('body');
       return {
@@ -96,13 +101,10 @@ function uploadData(data, done) {
     .send((err, result) => {
       if (err) return done(err);
 
-      const jsonURI = result.Location;
-      logger.info(`[${key}] uploaded json to ${jsonURI}`);
-
       return done(null, {
         key: key,
         check: checkData,
-        json: jsonURI
+        json: result.Location
       });
     });
 }
@@ -153,8 +155,7 @@ function formatResponse(data, done) {
 module.exports = {
 
   /**
-   * @param {object} data
-   * @param {object} data.check
+   * @param {object} checkData
    */
   screenshot(checkData) {
     return new Promise((resolve, reject) => {
