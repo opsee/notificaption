@@ -9,7 +9,8 @@ const URL = require('url');
 const nightmare = Nightmare({
   show: false,
   width: 700,
-  height: 768
+  height: 768,
+  waitTimeout: 3000 // milliseconds
 });
 
 const s3 = new AWS.S3({
@@ -60,10 +61,9 @@ function *screenshot(data) {
   logger.info(`[${checkID}] Requesting screenshot from ${uri}`);
 
   const dimensions = yield nightmare
-    .viewport(700, 1)
+    .viewport(700, 1) // Reset the viewport
     .goto(uri)
-    .wait('body')
-    .wait(1000)
+    .wait('.js-screenshot-results')
     .evaluate(() => {
       const body = document.querySelector('body');
       return {
@@ -74,7 +74,7 @@ function *screenshot(data) {
 
   const imageBuffer = yield nightmare
     .viewport(dimensions.width, dimensions.height + 50) // Magic number??
-    .wait(1000)
+    .wait(500) // Required, otherwise the viewport will be distorted
     .screenshot();
 
   return imageBuffer;
@@ -159,6 +159,10 @@ module.exports = {
 
   /**
    * @param {object} checkData
+   *
+   * @returns {object} results
+   * @returns {string} results.json - S3 URL to JSON
+   * @returns {string} results.image - S3 URL to image
    */
   screenshot(checkData) {
     return new Promise((resolve, reject) => {
