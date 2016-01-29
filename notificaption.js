@@ -1,18 +1,11 @@
 const assign = require('object-assign');
 const AWS = require('aws-sdk');
 const config = require('config');
-const Imagemin = require('imagemin');
 const logger = require('./utils/logger');
-const Nightmare = require('nightmare');
+
 const vo = require('vo');
 const URL = require('url');
-
-const nightmare = Nightmare({
-  show: false,
-  width: 700,
-  height: 768,
-  waitTimeout: 3000 // milliseconds
-});
+const Screenshot = require('./utils/screenshot');
 
 const s3 = new AWS.S3({
   params: {
@@ -53,44 +46,16 @@ function buildEmissaryURI(checkID, jsonURI) {
   });
 }
 
-function *screenshot(data) {
+function screenshot(data, done) {
   const checkData = data.check;
   const checkID = checkData.id;
   const jsonURI = data.json;
   const uri = buildEmissaryURI(checkID, jsonURI);
 
   logger.info(`[${checkID}] Requesting screenshot from ${uri}`);
-
-  const dimensions = yield nightmare
-    .viewport(700, 1) // Reset the viewport
-    .goto(uri)
-    .wait('.js-screenshot-results')
-    .evaluate(() => {
-      const body = document.querySelector('body');
-      return {
-        height: body.scrollHeight,
-        width: body.scrollWidth
-      };
-    });
-
-  const imageBuffer = yield nightmare
-    .viewport(dimensions.width, dimensions.height + 50) // Magic number??
-    .wait(500) // Required, otherwise the viewport will be distorted
-    .screenshot();
-
-  return imageBuffer;
-}
-
-function compress(imageBuffer, done) {
-  new Imagemin()
-    .src(imageBuffer)
-    .use(Imagemin.optipng({ optimizationLevel: 3 }))
-    .run((err, results) => {
-      const compressedBuffer = results[0].contents;
-      const delta = imageBuffer.length - compressedBuffer.length;
-      logger.info(`Compression delta: ${delta / 1024}kB (${imageBuffer.length / 1024}kB - ${compressedBuffer.length / 1024}kB)`);
-      return done(err, compressedBuffer);
-    });
+  return Screenshot({
+    uri: uri
+  }, done);
 }
 
 /**
@@ -133,7 +98,7 @@ function uploadData(data, done) {
  * @param {string} data.json
  */
 function uploadScreenshot(data, done) {
-  vo(screenshot, compress)(data, (err, imageBuffer) => {
+  vo(screenshot)(data, (err, imageBuffer) => {
     if (err) return done(err);
 
     s3.upload({
