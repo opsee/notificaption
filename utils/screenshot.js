@@ -7,13 +7,12 @@ const vo = require('vo');
 function *capture(opts) {
   const nightmare = Nightmare({
     show: false,
-    width: 700,
+    width: opts.width || config.defaultWidth,
     height: 768,
     waitTimeout: 3000 // milliseconds
   });
 
   const dimensions = yield nightmare
-    .viewport(700, 1) // Reset the viewport
     .goto(opts.uri)
     .wait('.js-screenshot-results')
     .evaluate(() => {
@@ -48,6 +47,7 @@ function compress(imageBuffer, done) {
 /**
  * @param {object} opts
  * @param {string} opts.uri - required; the URI to screenshot
+ * @param {number} opts.width - optional; screenshot width in px
  *
  * @returns {Buffer} - the screenshot as a base64-encoded imageBuffer
  */
