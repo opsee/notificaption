@@ -1,6 +1,7 @@
 const assign = require('object-assign');
 const AWS = require('aws-sdk');
 const config = require('config');
+const Imagemin = require('imagemin');
 const logger = require('./utils/logger');
 const Nightmare = require('nightmare');
 const vo = require('vo');
@@ -80,6 +81,18 @@ function *screenshot(data) {
   return imageBuffer;
 }
 
+function compress(imageBuffer, done) {
+  new Imagemin()
+    .src(imageBuffer)
+    .use(Imagemin.optipng({ optimizationLevel: 3 }))
+    .run((err, results) => {
+      const compressedBuffer = results[0].contents;
+      const delta = imageBuffer.length - compressedBuffer.length;
+      logger.info(`Compression delta: ${delta / 1024}kB (${imageBuffer.length / 1024}kB - ${compressedBuffer.length / 1024}kB)`);
+      return done(err, compressedBuffer);
+    });
+}
+
 /**
  * @param {object} data
  * @param {object} data.check
@@ -120,7 +133,7 @@ function uploadData(data, done) {
  * @param {string} data.json
  */
 function uploadScreenshot(data, done) {
-  vo(screenshot)(data, (err, imageBuffer) => {
+  vo(screenshot, compress)(data, (err, imageBuffer) => {
     if (err) return done(err);
 
     s3.upload({
