@@ -1,5 +1,4 @@
 const assign = require('object-assign');
-const AWS = require('aws-sdk');
 const config = require('config');
 const logger = require('./utils/logger');
 
@@ -7,12 +6,6 @@ const vo = require('vo');
 const URL = require('url');
 const Screenshot = require('./utils/screenshot');
 const uploadUtils = require('./utils/upload');
-
-const s3 = new AWS.S3({
-  params: {
-    Bucket: config.s3.bucket
-  }
-});
 
 /**
  * Returns a unique identifier for screenshots that are uploaded to S3.
@@ -80,7 +73,7 @@ function uploadData(data, done) {
         key: key,
         check: checkData,
         json: result.url
-      })
+      });
     })
     .catch(err => {
       console.error(err);
@@ -106,9 +99,9 @@ function uploadScreenshot(data, done) {
           image: result.url
         }));
       })
-      .catch(err => {
-        console.error(err);
-        return done(err);
+      .catch(uploadErr => {
+        console.error(uploadErr);
+        return done(uploadErr);
       });
   });
 }
