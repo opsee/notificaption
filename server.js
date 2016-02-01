@@ -9,27 +9,6 @@ const server = restify.createServer({
 server.use(restify.bodyParser({ mapParams: true }));
 server.use(restify.CORS());
 
-function postScreenshot(req, res, next) {
-  notificaption.screenshot(req.params)
-    .then(resp => {
-      res.send(resp);
-      next();
-    })
-    .catch(err => {
-      logger.error(err);
-      next(err);
-    });
-}
-
-/**
- * @api GET /health Health check
- * @apiDescription Health check endpoint, mostly for AWS.
- */
-server.get('/health', (req, res, next) => {
-  res.send(200, { status: 'ok' });
-  next();
-});
-
 /**
   * @api POST /screenshot Generate a screenshot
   * @apiName PostScreenshot
@@ -49,11 +28,26 @@ server.get('/health', (req, res, next) => {
   *       }
   *     }
   */
-server.post('/screenshot', postScreenshot);
+server.post('/screenshot', (req, res, next) => {
+  notificaption.screenshot(req.params)
+    .then(resp => {
+      res.send(resp);
+      next();
+    })
+    .catch(err => {
+      logger.error(err);
+      next(err);
+    });
+});
 
-server.get(/\/checks\/?.*/, restify.serveStatic({
-  directory: './tmp'
-}));
+/**
+ * @api GET /health Health check
+ * @apiDescription Health check endpoint, mostly for AWS.
+ */
+server.get('/health', (req, res, next) => {
+  res.send(200, { status: 'ok' });
+  next();
+});
 
 server.listen(9099, () => {
   logger.info('%s server %s listening at %s', process.env.NODE_ENV, server.name, server.url);
