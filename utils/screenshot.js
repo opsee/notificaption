@@ -8,7 +8,7 @@ function *capture(opts) {
   const imageWidth = opts.width || config.defaultWidth;
   const key = `${opts.key}_${imageWidth}`;
 
-  logger.info(`Generating ${key}`);
+  logger.info(`Generating ${key} from ${opts.uri}`);
 
   const nightmare = Nightmare({
     show: false,
@@ -43,7 +43,7 @@ function *capture(opts) {
 function compress(data, done) {
   const imageBuffer = data.buffer;
 
-  logger.info(`Compressing ${key}`);
+  logger.info(`Compressing ${data.key}`);
 
   new Imagemin()
     .src(imageBuffer)
