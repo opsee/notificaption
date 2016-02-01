@@ -95,6 +95,20 @@ function uploadScreenshot(data, done) {
   });
 }
 
+function uploadScreenshots(data, done) {
+  const fileKey = data.key;
+  const checkData = data.check;
+
+  return uploadScreenshot(data, (err, imageData) => {
+
+    const image_urls = {
+      default: imageData.image
+    };
+
+    return done(err, assign({}, data, { image_urls }));
+  });
+}
+
 /*
  * @param {object} data
  * @param {object} data.check
@@ -105,9 +119,7 @@ function uploadScreenshot(data, done) {
 function formatResponse(data, done) {
   return done(null, {
     json_url: data.json,
-    image_urls: {
-      default: data.image
-    }
+    image_urls: data.image_urls
   });
 }
 
@@ -125,7 +137,7 @@ module.exports = {
     return new Promise((resolve, reject) => {
       logger.info(`[${checkData.id}] Received screenshot request`);
 
-      const pipeline = vo(uploadData, uploadScreenshot, formatResponse);
+      const pipeline = vo(uploadData, uploadScreenshots, formatResponse);
 
       pipeline.catch(err => {
         logger.error(err);
