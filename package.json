@@ -28,7 +28,7 @@
     "config": "^1.17.1",
     "eslint": "^1.10.3",
     "imagemin": "^4.0.0",
-    "nightmare": "^2.1.2",
+    "nightmare": "^2.1.6",
     "restify": "^4.0.3",
     "vo": "^1.0.3",
     "webshot": "^0.17.0",
