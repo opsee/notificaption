@@ -43,6 +43,8 @@ function *capture(opts) {
 function compress(data, done) {
   const imageBuffer = data.buffer;
 
+  logger.info(`Compressing ${key}`);
+
   new Imagemin()
     .src(imageBuffer)
     .use(Imagemin.optipng({ optimizationLevel: 3 }))
