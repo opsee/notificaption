@@ -1,3 +1,5 @@
 node_modules
 tmp/checks/*.json
 *.log
+
+config/local.json

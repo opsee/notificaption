@@ -11,5 +11,9 @@
     "hostname": "app.opsee.com",
     "port": null,
     "basePath": "/check"
+  },
+
+  "yeller": {
+    "token": null
   }
 }
