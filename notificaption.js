@@ -98,21 +98,18 @@ function uploadScreenshot(data, done) {
   vo(screenshot)(data, (err, imageBuffer) => {
     if (err) return done(err);
 
-    s3.upload({
-      Key: data.key,
-      Body: imageBuffer,
-      ContentEncoding: 'base64',
-      ContentType: 'image/jpeg'
-    })
-    .send((error, response) => {
-      if (error) return done(error);
+    uploadUtils.uploadImage(data.key, imageBuffer)
+      .then(result => {
+        console.log('result', result);
 
-      logger.info(`[${data.check.id}] Uploaded image to ${response.Location}`);
-
-      return done(null, assign({}, data, {
-        image: response.Location
-      }));
-    });
+        return done(null, assign({}, data, {
+          image: result.url
+        }));
+      })
+      .catch(err => {
+        console.error(err);
+        return done(err);
+      });
   });
 }
 

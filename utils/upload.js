@@ -26,4 +26,24 @@ function uploadJSON(key, json) {
   });
 }
 
-module.exports = { uploadJSON };
+/**
+ * @param {String} key
+ * @param {Buffer} imageBuffer
+ */
+function uploadImage(key, imageBuffer) {
+  return new Promise((resolve, reject) => {
+    s3.upload({
+      Key: `${key}.png`,
+      Body: imageBuffer,
+      ContentEncoding: 'base64',
+      ContentType: 'image/png'
+    }).send((err, result) => {
+      if (err) return reject(err);
+
+      const url = result.Location;
+      return resolve({ url });
+    });
+  });
+}
+
+module.exports = { uploadJSON, uploadImage };
