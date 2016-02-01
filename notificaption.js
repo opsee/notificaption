@@ -67,45 +67,46 @@ function uploadData(data, done) {
     });
 }
 
+/**
+ * @param {Object} params
+ * @param {String} params.key
+ * @param {String} params.uri
+ * @param {number} params.width
+ */
+const uploadScreenshot = vo(screenshot, (result, done) => {
+  const imageBuffer = result.buffer;
+  const key = result.key;
+
+  uploadUtils.uploadImage(key, imageBuffer)
+    .then(result => {
+      return done(null, result.url);
+    })
+    .catch(uploadErr => {
+      logger.error(uploadErr);
+      return done(uploadErr);
+    });
+});
+
 /*
  * @param {object} data
  * @param {object} data.check
  * @param {string} data.key
  * @param {string} data.json
  */
-function uploadScreenshot(data, done) {
+function uploadScreenshots(data, done) {
+  const key = data.key;
   const checkData = data.check;
   const checkID = checkData.id;
   const jsonURI = data.json;
+
   const uri = buildEmissaryURI(checkID, jsonURI);
 
-  vo(screenshot)({ uri }, (err, imageBuffer) => {
-    if (err) return done(err);
-
-    uploadUtils.uploadImage(data.key, imageBuffer)
-      .then(result => {
-        return done(null, assign({}, data, {
-          image: result.url
-        }));
-      })
-      .catch(uploadErr => {
-        logger.error(uploadErr);
-        return done(uploadErr);
-      });
-  });
-}
-
-function uploadScreenshots(data, done) {
-  const fileKey = data.key;
-  const checkData = data.check;
-
-  return uploadScreenshot(data, (err, imageData) => {
-
-    const image_urls = {
-      default: imageData.image
-    };
-
-    return done(err, assign({}, data, { image_urls }));
+  vo({
+    small: uploadScreenshot({ key, uri, width: 50 }),
+    default: uploadScreenshot({ key, uri, width: 320 }),
+    large: uploadScreenshot({ key, uri, width: 740 })
+  })((err, image_urls) => {
+    return done(null, assign({}, data, { image_urls }));
   });
 }
 

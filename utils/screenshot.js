@@ -31,10 +31,15 @@ function *capture(opts) {
     .screenshot()
     .end();
 
-  return imageBuffer;
+  return {
+    buffer: imageBuffer,
+    key: `${opts.key}_${imageWidth}`
+  };
 }
 
-function compress(imageBuffer, done) {
+function compress(data, done) {
+  const imageBuffer = data.buffer;
+
   new Imagemin()
     .src(imageBuffer)
     .use(Imagemin.optipng({ optimizationLevel: 3 }))
@@ -42,7 +47,10 @@ function compress(imageBuffer, done) {
       const compressedBuffer = results[0].contents;
       const delta = imageBuffer.length - compressedBuffer.length;
       logger.info(`Compression delta: ${delta / 1024}kB (${imageBuffer.length / 1024}kB - ${compressedBuffer.length / 1024}kB)`);
-      return done(err, compressedBuffer);
+      return done(err, {
+        key: data.key,
+        buffer: compressedBuffer
+      });
     });
 }
 
