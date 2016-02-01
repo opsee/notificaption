@@ -105,6 +105,8 @@ function uploadScreenshots(data, done) {
     small: uploadScreenshot({ key, uri, width: 320 }),
     large: uploadScreenshot({ key, uri, width: 740 })
   })((err, imageURLS) => {
+    if (err) return done(err);
+
     return done(null, assign({}, data, {
       image_urls: imageURLS
     }));

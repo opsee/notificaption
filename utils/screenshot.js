@@ -3,6 +3,7 @@ const Imagemin = require('imagemin');
 const logger = require('./logger');
 const Nightmare = require('nightmare');
 const vo = require('vo');
+const yeller = require('./yeller');
 
 function *capture(opts) {
   const imageWidth = opts.width || config.defaultWidth;
