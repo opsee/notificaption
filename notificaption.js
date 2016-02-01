@@ -78,8 +78,8 @@ const uploadScreenshot = vo(screenshot, (result, done) => {
   const key = result.key;
 
   uploadUtils.uploadImage(key, imageBuffer)
-    .then(result => {
-      return done(null, result.url);
+    .then(uploadResult => {
+      return done(null, uploadResult.url);
     })
     .catch(uploadErr => {
       logger.error(uploadErr);
@@ -105,8 +105,10 @@ function uploadScreenshots(data, done) {
     small: uploadScreenshot({ key, uri, width: 50 }),
     default: uploadScreenshot({ key, uri, width: 320 }),
     large: uploadScreenshot({ key, uri, width: 740 })
-  })((err, image_urls) => {
-    return done(null, assign({}, data, { image_urls }));
+  })((err, imageURLS) => {
+    return done(null, assign({}, data, {
+      image_urls: imageURLS
+    }));
   });
 }
 
