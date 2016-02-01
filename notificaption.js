@@ -4,7 +4,7 @@ const logger = require('./utils/logger');
 
 const vo = require('vo');
 const URL = require('url');
-const Screenshot = require('./utils/screenshot');
+const screenshot = require('./utils/screenshot');
 const uploadUtils = require('./utils/upload');
 
 /**
@@ -40,18 +40,6 @@ function buildEmissaryURI(checkID, jsonURI) {
   });
 }
 
-function screenshot(data, done) {
-  const checkData = data.check;
-  const checkID = checkData.id;
-  const jsonURI = data.json;
-  const uri = buildEmissaryURI(checkID, jsonURI);
-
-  logger.info(`[${checkID}] Requesting screenshot from ${uri}`);
-  return Screenshot({
-    uri: uri
-  }, done);
-}
-
 /**
  * @param {object} data
  * @param {object} data.check
@@ -67,8 +55,6 @@ function uploadData(data, done) {
 
   uploadUtils.uploadJSON(key, checkData)
     .then(result => {
-      console.log('result', result);
-
       return done(null, {
         key: key,
         check: checkData,
@@ -88,13 +74,16 @@ function uploadData(data, done) {
  * @param {string} data.json
  */
 function uploadScreenshot(data, done) {
-  vo(screenshot)(data, (err, imageBuffer) => {
+  const checkData = data.check;
+  const checkID = checkData.id;
+  const jsonURI = data.json;
+  const uri = buildEmissaryURI(checkID, jsonURI);
+
+  vo(screenshot)({ uri }, (err, imageBuffer) => {
     if (err) return done(err);
 
     uploadUtils.uploadImage(data.key, imageBuffer)
       .then(result => {
-        console.log('result', result);
-
         return done(null, assign({}, data, {
           image: result.url
         }));
