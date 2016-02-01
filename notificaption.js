@@ -128,19 +128,22 @@ function uploadScreenshot(data, done) {
  */
 function formatResponse(data, done) {
   return done(null, {
-    json: data.json,
-    image: data.image
+    json_url: data.json,
+    image_urls: {
+      default: data.image
+    }
   });
 }
 
 module.exports = {
 
   /**
-   * @param {object} checkData
+   * @param {object} checkData - a JSON object describing the check, assertions,
+   *    results, and so on. Uploaded to S3 and used to populate the screenshot.
    *
    * @returns {object} results
-   * @returns {string} results.json - S3 URL to JSON
-   * @returns {string} results.image - S3 URL to image
+   * @returns {string} results.json_url - S3 URL to JSON
+   * @returns {string} results.image_urls - S3 URL to image
    */
   screenshot(checkData) {
     return new Promise((resolve, reject) => {

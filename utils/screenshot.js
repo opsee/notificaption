@@ -5,10 +5,12 @@ const Nightmare = require('nightmare');
 const vo = require('vo');
 
 function *capture(opts) {
+  const imageWidth = opts.width || config.defaultWidth;
+
   const nightmare = Nightmare({
     show: false,
-    width: opts.width || config.defaultWidth,
-    height: 768,
+    width: imageWidth,
+    height: 1, // a large initial viewport can result in oversized screenshots
     waitTimeout: 3000 // milliseconds
   });
 
