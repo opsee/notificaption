@@ -102,8 +102,7 @@ function uploadScreenshots(data, done) {
   const uri = buildEmissaryURI(checkID, jsonURI);
 
   vo({
-    small: uploadScreenshot({ key, uri, width: 320 }),
-    large: uploadScreenshot({ key, uri, width: 740 })
+    large: uploadScreenshot({ key, uri, width: 500 })
   })((err, imageURLS) => {
     if (err) return done(err);
 
