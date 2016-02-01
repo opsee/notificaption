@@ -54,4 +54,5 @@ server.get('/health', (req, res, next) => {
 
 server.listen(9099, () => {
   logger.info('%s server %s listening at %s', config.util.getEnv('NODE_ENV'), server.name, server.url);
+  logger.info(config);
 });
