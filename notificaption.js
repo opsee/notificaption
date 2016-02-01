@@ -6,6 +6,7 @@ const logger = require('./utils/logger');
 const vo = require('vo');
 const URL = require('url');
 const Screenshot = require('./utils/screenshot');
+const uploadUtils = require('./utils/upload');
 
 const s3 = new AWS.S3({
   params: {
@@ -71,23 +72,19 @@ function uploadData(data, done) {
   const checkData = data.check;
   const key = generateS3Key(checkData.id);
 
-  const upload = {
-    Body: JSON.stringify(checkData),
-    Key: `${key}.json`,
-    ContentType: 'application/json'
-  };
-
-  s3.upload(upload)
-    .send((err, result) => {
-      if (err) return done(err);
-
-      logger.info(`[${checkData.id}] Uploaded JSON to ${result.Location}`);
+  uploadUtils.uploadJSON(key, checkData)
+    .then(result => {
+      console.log('result', result);
 
       return done(null, {
         key: key,
         check: checkData,
-        json: result.Location
-      });
+        json: result.url
+      })
+    })
+    .catch(err => {
+      console.error(err);
+      return done(err);
     });
 }
 
