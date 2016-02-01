@@ -1,6 +1,8 @@
+const config = require('config');
 const logger = require('./utils/logger');
 const notificaption = require('./notificaption');
 const restify = require('restify');
+const yeller = require('./utils/yeller');
 
 const server = restify.createServer({
   name: 'notificaption'
@@ -36,6 +38,7 @@ server.post('/screenshot', (req, res, next) => {
     })
     .catch(err => {
       logger.error(err);
+      yeller.report(err);
       next(err);
     });
 });
@@ -50,5 +53,5 @@ server.get('/health', (req, res, next) => {
 });
 
 server.listen(9099, () => {
-  logger.info('%s server %s listening at %s', process.env.NODE_ENV, server.name, server.url);
+  logger.info('%s server %s listening at %s', config.util.getEnv('NODE_ENV'), server.name, server.url);
 });
