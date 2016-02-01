@@ -5,15 +5,16 @@ const Nightmare = require('nightmare');
 const vo = require('vo');
 
 function *capture(opts) {
+  const imageWidth = opts.width || config.defaultWidth;
+
   const nightmare = Nightmare({
     show: false,
-    width: 700,
-    height: 768,
+    width: imageWidth,
+    height: 1, // a large initial viewport can result in oversized screenshots
     waitTimeout: 3000 // milliseconds
   });
 
   const dimensions = yield nightmare
-    .viewport(700, 1) // Reset the viewport
     .goto(opts.uri)
     .wait('.js-screenshot-results')
     .evaluate(() => {
@@ -30,10 +31,15 @@ function *capture(opts) {
     .screenshot()
     .end();
 
-  return imageBuffer;
+  return {
+    buffer: imageBuffer,
+    key: `${opts.key}_${imageWidth}`
+  };
 }
 
-function compress(imageBuffer, done) {
+function compress(data, done) {
+  const imageBuffer = data.buffer;
+
   new Imagemin()
     .src(imageBuffer)
     .use(Imagemin.optipng({ optimizationLevel: 3 }))
@@ -41,13 +47,17 @@ function compress(imageBuffer, done) {
       const compressedBuffer = results[0].contents;
       const delta = imageBuffer.length - compressedBuffer.length;
       logger.info(`Compression delta: ${delta / 1024}kB (${imageBuffer.length / 1024}kB - ${compressedBuffer.length / 1024}kB)`);
-      return done(err, compressedBuffer);
+      return done(err, {
+        key: data.key,
+        buffer: compressedBuffer
+      });
     });
 }
 
 /**
  * @param {object} opts
  * @param {string} opts.uri - required; the URI to screenshot
+ * @param {number} opts.width - optional; screenshot width in px
  *
  * @returns {Buffer} - the screenshot as a base64-encoded imageBuffer
  */

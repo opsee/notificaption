@@ -1,17 +1,11 @@
 const assign = require('object-assign');
-const AWS = require('aws-sdk');
 const config = require('config');
 const logger = require('./utils/logger');
 
 const vo = require('vo');
 const URL = require('url');
-const Screenshot = require('./utils/screenshot');
-
-const s3 = new AWS.S3({
-  params: {
-    Bucket: config.s3.bucket
-  }
-});
+const screenshot = require('./utils/screenshot');
+const uploadUtils = require('./utils/upload');
 
 /**
  * Returns a unique identifier for screenshots that are uploaded to S3.
@@ -46,18 +40,6 @@ function buildEmissaryURI(checkID, jsonURI) {
   });
 }
 
-function screenshot(data, done) {
-  const checkData = data.check;
-  const checkID = checkData.id;
-  const jsonURI = data.json;
-  const uri = buildEmissaryURI(checkID, jsonURI);
-
-  logger.info(`[${checkID}] Requesting screenshot from ${uri}`);
-  return Screenshot({
-    uri: uri
-  }, done);
-}
-
 /**
  * @param {object} data
  * @param {object} data.check
@@ -71,25 +53,39 @@ function uploadData(data, done) {
   const checkData = data.check;
   const key = generateS3Key(checkData.id);
 
-  const upload = {
-    Body: JSON.stringify(checkData),
-    Key: `${key}.json`,
-    ContentType: 'application/json'
-  };
-
-  s3.upload(upload)
-    .send((err, result) => {
-      if (err) return done(err);
-
-      logger.info(`[${checkData.id}] Uploaded JSON to ${result.Location}`);
-
+  uploadUtils.uploadJSON(key, checkData)
+    .then(result => {
       return done(null, {
         key: key,
         check: checkData,
-        json: result.Location
+        json: result.url
       });
+    })
+    .catch(err => {
+      logger.error(err);
+      return done(err);
     });
 }
+
+/**
+ * @param {Object} params
+ * @param {String} params.key
+ * @param {String} params.uri
+ * @param {number} params.width
+ */
+const uploadScreenshot = vo(screenshot, (result, done) => {
+  const imageBuffer = result.buffer;
+  const key = result.key;
+
+  uploadUtils.uploadImage(key, imageBuffer)
+    .then(uploadResult => {
+      return done(null, uploadResult.url);
+    })
+    .catch(uploadErr => {
+      logger.error(uploadErr);
+      return done(uploadErr);
+    });
+});
 
 /*
  * @param {object} data
@@ -97,25 +93,22 @@ function uploadData(data, done) {
  * @param {string} data.key
  * @param {string} data.json
  */
-function uploadScreenshot(data, done) {
-  vo(screenshot)(data, (err, imageBuffer) => {
-    if (err) return done(err);
+function uploadScreenshots(data, done) {
+  const key = data.key;
+  const checkData = data.check;
+  const checkID = checkData.id;
+  const jsonURI = data.json;
 
-    s3.upload({
-      Key: data.key,
-      Body: imageBuffer,
-      ContentEncoding: 'base64',
-      ContentType: 'image/jpeg'
-    })
-    .send((error, response) => {
-      if (error) return done(error);
+  const uri = buildEmissaryURI(checkID, jsonURI);
 
-      logger.info(`[${data.check.id}] Uploaded image to ${response.Location}`);
-
-      return done(null, assign({}, data, {
-        image: response.Location
-      }));
-    });
+  vo({
+    small: uploadScreenshot({ key, uri, width: 50 }),
+    default: uploadScreenshot({ key, uri, width: 320 }),
+    large: uploadScreenshot({ key, uri, width: 740 })
+  })((err, imageURLS) => {
+    return done(null, assign({}, data, {
+      image_urls: imageURLS
+    }));
   });
 }
 
@@ -128,25 +121,26 @@ function uploadScreenshot(data, done) {
  */
 function formatResponse(data, done) {
   return done(null, {
-    json: data.json,
-    image: data.image
+    json_url: data.json,
+    image_urls: data.image_urls
   });
 }
 
 module.exports = {
 
   /**
-   * @param {object} checkData
+   * @param {object} checkData - a JSON object describing the check, assertions,
+   *    results, and so on. Uploaded to S3 and used to populate the screenshot.
    *
    * @returns {object} results
-   * @returns {string} results.json - S3 URL to JSON
-   * @returns {string} results.image - S3 URL to image
+   * @returns {string} results.json_url - S3 URL to JSON
+   * @returns {string} results.image_urls - S3 URL to image
    */
   screenshot(checkData) {
     return new Promise((resolve, reject) => {
       logger.info(`[${checkData.id}] Received screenshot request`);
 
-      const pipeline = vo(uploadData, uploadScreenshot, formatResponse);
+      const pipeline = vo(uploadData, uploadScreenshots, formatResponse);
 
       pipeline.catch(err => {
         logger.error(err);
