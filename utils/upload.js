@@ -10,6 +10,9 @@ const s3 = new AWS.S3({
 /**
  * @param {String} key
  * @param {Object} json
+ *
+ * @param {Object} result
+ * @param {String} result.url - an S3 URL to the .json file
  */
 function uploadJSON(key, json) {
   return new Promise((resolve, reject) => {
@@ -29,6 +32,9 @@ function uploadJSON(key, json) {
 /**
  * @param {String} key
  * @param {Buffer} imageBuffer
+ *
+ * @param {Object} result
+ * @param {String} result.url - an S3 URL to the .png file
  */
 function uploadImage(key, imageBuffer) {
   return new Promise((resolve, reject) => {

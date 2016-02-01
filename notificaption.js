@@ -62,7 +62,7 @@ function uploadData(data, done) {
       });
     })
     .catch(err => {
-      console.error(err);
+      logger.error(err);
       return done(err);
     });
 }
@@ -89,7 +89,7 @@ function uploadScreenshot(data, done) {
         }));
       })
       .catch(uploadErr => {
-        console.error(uploadErr);
+        logger.error(uploadErr);
         return done(uploadErr);
       });
   });
