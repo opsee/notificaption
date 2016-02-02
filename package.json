@@ -30,7 +30,6 @@
     "nightmare": "^2.1.6",
     "restify": "^4.0.3",
     "vo": "^1.0.3",
-    "webshot": "^0.17.0",
     "winston": "^2.1.1",
     "yeller_node": "0.0.7",
     "vo": "^1.0.3"
