@@ -1,4 +1,4 @@
-var pipeline = require('./pipeline');
+var pipeline = require('../pipeline');
 var check = require('./check.json');
 
 pipeline(check)
