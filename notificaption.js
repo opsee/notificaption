@@ -52,10 +52,6 @@ module.exports = function(check) {
       // Take an screenshot
       return screenshot({ key, uri, widths, json_url: jsonURL });
     })
-    .then(results => {
-      console.log('done screenshot');
-      return Promise.resolve(results);
-    })
     // Upload the screenshots to s3
     .then(uploadImages)
     // Format the response for the server
