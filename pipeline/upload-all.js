@@ -56,6 +56,9 @@ module.exports = function(data) {
         response.screenshots[width].url = url;
       }
 
+      response.screenshots['default'] = {};
+      response.screenshots['default'].url = results[0];
+
       return response;
     });
 }
