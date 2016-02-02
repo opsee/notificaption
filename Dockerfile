@@ -41,4 +41,4 @@ RUN npm install
 EXPOSE 9099
 
 # Default command. Assumes our file is index.js and our screen size is 1024x768
-CMD xvfb-run --server-args="-screen 0 1024x768x24" node test.js
+CMD xvfb-run --server-args="-screen 0 1024x768x24" node server.js
