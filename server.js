@@ -33,7 +33,6 @@ server.use(restify.CORS());
 server.post('/screenshot', (req, res, next) => {
   pipeline(req.params)
     .then(resp => {
-      console.log(resp);
       res.send(resp);
       next();
     })

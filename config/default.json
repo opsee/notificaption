@@ -1,6 +1,4 @@
 {
-  "defaultWidth": 300,
-
   "widths": [400, 800],
 
   "s3": {
