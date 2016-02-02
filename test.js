@@ -7,6 +7,11 @@ const vo = require('vo');
 const upload = require('./utils/upload');
 const keygen = require('./utils/keygen');
 
+const OPTS = {
+  widths: [400, 800],
+  // uri: "http://yahoo.com"
+  uri: "https://app.opsee.com/check/21G057gL7oNtKKDW64g9Dl/screenshot?json=https%3A%2F%2Fopsee-notificaption-images.s3.amazonaws.com%2F21G057gL7oNtKKDW64g9Dl_1454365816809.json"
+};
 
 function test(err, screenshots) {
   if (err) throw err;
@@ -33,7 +38,8 @@ function test(err, screenshots) {
 
 // THIS WORKS
 function runPassing() {
-  vo(function* (widths) {
+  vo(function* (opts) {
+    var widths = opts.widths;
     var screenshots = {};
 
     var nightmare = Nightmare({ show: true });
@@ -43,8 +49,8 @@ function runPassing() {
 
       var viewportHeight = yield nightmare
         .viewport(width, 100)
-        .goto('http://yahoo.com')
-        .wait(100) // wait for viewport to stabilize
+        .goto(opts.uri)
+        .wait('.js-screenshot-results') // wait for viewport to stabilize
         .evaluate(() => {
           var body = document.querySelector('body');
           return body.scrollHeight;
@@ -53,7 +59,7 @@ function runPassing() {
       console.log('height', viewportHeight);
 
       var screenshot = yield nightmare
-        .viewport(width, viewportHeight)
+        .viewport(width, viewportHeight + 40)
         .wait(200) // fucking viewports
         .screenshot();
 
@@ -62,7 +68,7 @@ function runPassing() {
 
     yield nightmare.end();
     return screenshots;
-  })([400, 800], test);
+  })(OPTS, test);
 }
 
 
