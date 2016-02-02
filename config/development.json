@@ -4,9 +4,9 @@
   },
 
   "emissary": {
-    "protocol": "http",
-    "hostname": "localhost",
-    "port": 8080,
-    "basePath": "/check"
+    // "protocol": "http",
+    // "hostname": "localhost",
+    // "port": 8080,
+    // "basePath": "/check"
   }
 }

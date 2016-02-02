@@ -14,7 +14,7 @@ machine:
 test:
   override:
     - docker run -d -p 9099:80 quay.io/opsee/notificaption:$CIRCLE_SHA1; sleep 10;
-    - npm run lint
+    - npm run test
 deployment:
   hub:
     branch: master

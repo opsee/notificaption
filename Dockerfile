@@ -1,22 +1,44 @@
-FROM node:argon
+FROM node:4.2
 
-MAINTAINER Sara Bee <sara@opsee.co>
+# Updating ubuntu packages
+RUN apt-get update
 
-ENV NODE_ENV 'production'
-ENV DISPLAY ':9.0'
+# Installing the packages needed to run Nightmare
+RUN apt-get install -y \
+  xvfb \
+  x11-xkb-utils \
+  xfonts-100dpi \
+  xfonts-75dpi \
+  xfonts-scalable \
+  xfonts-cyrillic \
+  x11-apps \
+  clang \
+  libdbus-1-dev \
+  libgtk2.0-dev \
+  libnotify-dev \
+  libgnome-keyring-dev \
+  libgconf2-dev \
+  libasound2-dev \
+  libcap-dev \
+  libcups2-dev \
+  libxtst-dev \
+  libxss1 \
+  libnss3-dev \
+  gcc-multilib \
+  g++-multilib
 
-# Install the Nix dependencies for Electron
-RUN apt-get update &&\
-    apt-get install -y libgtk2.0-0 libgconf-2-4 \
-    libasound2 libxtst6 libxss1 libnss3 xvfb
+ENV DEBUG="nightmare"
 
-# Set up the node app
-RUN mkdir -p /usr/src/app
-WORKDIR /usr/src/app
-COPY package.json /usr/src/app/
+# Add current directory to /app
+ADD . /app
+
+# Set current working directory as /app
+WORKDIR /app
+
+# Install npm packages
 RUN npm install
-COPY . /usr/src/app
 
-# Start the server
 EXPOSE 9099
-CMD xvfb-run --server-args="-screen 9 1280x2000x24" node server.js
+
+# Default command. Assumes our file is index.js and our screen size is 1024x768
+CMD xvfb-run --server-args="-screen 0 1024x768x24" node server.js
