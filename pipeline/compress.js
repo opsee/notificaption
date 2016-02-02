@@ -28,11 +28,7 @@ module.exports = (data) => {
         resolve({
           key: data.key,
           buffer: compressedBuffer
-        })
-        // return done(err, {
-        //   key: data.key,
-        //   buffer: compressedBuffer
-        // });
+        });
     });
   });
 }
