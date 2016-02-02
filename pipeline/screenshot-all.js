@@ -23,8 +23,6 @@ function *takeScreenshots(opts) {
           return body.scrollHeight;
         });
 
-      console.log('height', viewportHeight);
-
       var screenshot = yield nightmare
         .viewport(width, viewportHeight + 40)
         .wait(200) // fucking viewports
