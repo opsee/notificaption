@@ -37,14 +37,11 @@ function upload(key, imageBuffer) {
 module.exports = function(data) {
   const widths = config.widths;
 
-  var uploadPromises = [];
-
-  for (var i = 0; i < widths.length; i++) {
-    var width = widths[i];
+  const uploadPromises = config.widths.map((width, i) => {
     var key = `${data.key}_${width}`;
     var imageBuffer = data.screenshots[width];
-    uploadPromises.push(upload(key, imageBuffer));
-  }
+    return upload(key, imageBuffer);
+  });
 
   return Promise.all(uploadPromises)
     .then(results => {
