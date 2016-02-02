@@ -1,6 +1,6 @@
 const config = require('config');
 const logger = require('./utils/logger');
-const notificaption = require('./notificaption');
+const pipeline = require('./pipeline');
 const restify = require('restify');
 const yeller = require('./utils/yeller');
 
@@ -31,7 +31,7 @@ server.use(restify.CORS());
   *     }
   */
 server.post('/screenshot', (req, res, next) => {
-  notificaption(req.params)
+  pipeline(req.params)
     .then(resp => {
       console.log(resp);
       res.send(resp);
