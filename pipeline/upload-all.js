@@ -2,12 +2,28 @@ const _ = require('lodash');
 const uploadUtils = require('../utils/upload');
 const AWS = require('aws-sdk');
 const config = require('config');
+const Promise = require('bluebird');
 
 const s3 = new AWS.S3({
   params: {
     Bucket: config.s3.bucket
   }
 });
+
+function upload(key, imageBuffer) {
+  return new Promise((resolve, reject) => {
+    s3.upload({
+      Key: `${key}.png`,
+      Body: imageBuffer,
+      ContentEncoding: 'base64',
+      ContentType: 'image/png'
+    }).send((err, result) => {
+      if (err) return reject(err);
+      var url = result.Location;
+      resolve(url)
+    });
+  });
+}
 
 /**
  * @param {object} data
@@ -19,29 +35,27 @@ const s3 = new AWS.S3({
  * @returns {string} results.json
  */
 module.exports = function(data) {
-  const widthKey = '400'; // FIXME
+  const widths = config.widths;
 
-  const images = data.screenshots;
-  const image = images[widthKey];
+  var uploadPromises = [];
 
-  const key = image.key;
-  const imageBuffer = image.buffer;
+  for (var i = 0; i < widths.length; i++) {
+    var width = widths[i];
+    var key = `${data.key}_${width}`;
+    var imageBuffer = data.screenshots[width];
+    uploadPromises.push(upload(key, imageBuffer));
+  }
 
-  return new Promise((resolve, reject) => {
-    s3.upload({
-      Key: `${key}.png`,
-      Body: imageBuffer,
-      ContentEncoding: 'base64',
-      ContentType: 'image/png'
-    }).send((err, result) => {
-      if (err) return reject(err);
-
-      var url = result.Location;
+  return Promise.all(uploadPromises)
+    .then(results => {
       var response = _.assign({}, data);
 
-      response.screenshots[widthKey].url = url;
+      for (var i = 0; i < results.length; i++) {
+        var width = widths[i];
+        var url = results[i];
+        response.screenshots[width].url = url;
+      }
 
-      return resolve(response);
+      return response;
     });
-  });
 }
