@@ -10,21 +10,6 @@ const s3 = new AWS.S3({
   }
 });
 
-function upload(key, imageBuffer) {
-  return new Promise((resolve, reject) => {
-    s3.upload({
-      Key: `${key}.png`,
-      Body: imageBuffer,
-      ContentEncoding: 'base64',
-      ContentType: 'image/png'
-    }).send((err, result) => {
-      if (err) return reject(err);
-      var url = result.Location;
-      resolve(url)
-    });
-  });
-}
-
 /**
  * @param {object} data
  * @param {object} data.check
@@ -40,7 +25,7 @@ module.exports = function(data) {
   const uploadPromises = config.widths.map((width, i) => {
     var key = `${data.key}_${width}`;
     var imageBuffer = data.screenshots[width];
-    return upload(key, imageBuffer);
+    return uploadUtils.uploadImage(key, imageBuffer);
   });
 
   return Promise.all(uploadPromises)
