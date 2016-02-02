@@ -7,10 +7,10 @@
     "devserver": "NODE_ENV=development nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 0",
     "lint": "./node_modules/eslint/bin/eslint.js --max-warnings 0 *.js",
-    "docker-build": "docker build -t quay.io/opsee/notificaption:latest .",
     "docker-push": "docker push quay.io/opsee/notificaption:latest",
     "docker-publish": "npm run docker-build && npm run docker-push",
-    "docker-run": "docker run -p 9099:9099 -e AWS_DEFAULT_REGION -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY --net='host' quay.io/opsee/notificaption",
+    "docker-build": "docker build -t nocap-test .",
+    "docker-run": "docker run -e AWS_DEFAULT_REGION -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY nocap-test",
     "docker-debug": "docker run -i -t --entrypoint /bin/bash -e AWS_DEFAULT_REGION -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY quay.io/opsee/notificaption"
   },
   "repository": {
@@ -23,16 +23,23 @@
     "url": "https://github.com/opsee/notificaption/issues"
   },
   "homepage": "https://github.com/opsee/notificaption#readme",
+
+
   "dependencies": {
-    "aws-sdk": "^2.2.26",
-    "config": "^1.17.1",
+    "aws-sdk": "^2.2.33",
+    "bluebird": "^3.2.1",
+    "config": "^1.19.0",
     "eslint": "^1.10.3",
     "imagemin": "^4.0.0",
+    "lodash": "^4.2.0",
+    "aws-sdk": "^2.2.33",
+    "config": "^1.19.0",
     "nightmare": "^2.1.6",
     "restify": "^4.0.3",
     "vo": "^1.0.3",
     "webshot": "^0.17.0",
     "winston": "^2.1.1",
-    "yeller_node": "0.0.7"
+    "yeller_node": "0.0.7",
+    "vo": "^1.0.3"
   }
 }

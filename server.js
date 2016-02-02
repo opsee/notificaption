@@ -31,8 +31,9 @@ server.use(restify.CORS());
   *     }
   */
 server.post('/screenshot', (req, res, next) => {
-  notificaption.screenshot(req.params)
+  notificaption(req.params)
     .then(resp => {
+      console.log(resp);
       res.send(resp);
       next();
     })
