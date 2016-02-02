@@ -13,11 +13,10 @@ In return, you'll receive S3 URLs to the generated images and the check JSON:
 
 ```json
 {
-  "json_url": "https://opsee-notificaption-images.s3.amazonaws.com/21G057gL7oNtKKDW64g9Dl_1454347949081.json",
-  "image_urls": {
-    "small": "https://opsee-notificaption-images.s3.amazonaws.com/21G057gL7oNtKKDW64g9Dl_1454347949081_320.png",
-    "large": "https://opsee-notificaption-images.s3.amazonaws.com/21G057gL7oNtKKDW64g9Dl_1454347949081_740.png"
-  }
+  "images": {
+    "default": "https://opsee-notificaption-images.s3.amazonaws.com/21G057gL7oNtKKDW64g9Dl_1454446492972_100.png"
+  },
+  "json_url": "https://opsee-notificaption-images.s3.amazonaws.com/21G057gL7oNtKKDW64g9Dl_1454446492972.json"
 }
 ```
 
