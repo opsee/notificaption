@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "devserver": "NODE_ENV=development nodemon server.js",
-    "test": "echo \"Error: no test specified\" && exit 0",
+    "test": "NODE_ENV='test' DEBUG=nightmare node test/server.js",
     "lint": "./node_modules/eslint/bin/eslint.js --max-warnings 0 *.js"
   },
   "repository": {
@@ -25,13 +25,13 @@
     "eslint": "^1.10.3",
     "imagemin": "^4.0.0",
     "lodash": "^4.2.0",
-    "aws-sdk": "^2.2.33",
-    "config": "^1.19.0",
     "nightmare": "^2.1.6",
     "restify": "^4.0.3",
     "vo": "^1.0.3",
     "winston": "^2.1.1",
-    "yeller_node": "0.0.7",
-    "vo": "^1.0.3"
+    "yeller_node": "0.0.7"
+  },
+  "devDependencies": {
+    "supertest": "^1.1.0"
   }
 }

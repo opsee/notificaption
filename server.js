@@ -3,6 +3,8 @@ const logger = require('./utils/logger');
 const pipeline = require('./pipeline');
 const restify = require('restify');
 const yeller = require('./utils/yeller');
+const generateURLs = require('./utils/generate-urls');
+const keygen = require('./utils/keygen');
 
 const server = restify.createServer({
   name: 'notificaption'
@@ -31,16 +33,25 @@ server.use(restify.CORS());
   *     }
   */
 server.post('/screenshot', (req, res, next) => {
-  pipeline(req.params)
-    .then(resp => {
-      res.send(resp);
-      next();
-    })
+  const check = req.params;
+
+  // Generate a base key for S3 URLs
+  const key = keygen(check.id);
+
+  // Optimistically generate URLs to allow Nightmare to do its thing
+  // in the background.
+  const urls = generateURLs(key);
+
+  // Kick off the pipeline
+  pipeline({ key, check })
+    .then(res => logger.info(`Completed ${res.json_url}`))
     .catch(err => {
       logger.error(err);
       yeller.report(err);
-      next(err);
     });
+
+  res.send(urls);
+  next();
 });
 
 /**
@@ -52,7 +63,12 @@ server.get('/health', (req, res, next) => {
   next();
 });
 
-server.listen(9099, () => {
-  logger.info('%s server %s listening at %s', config.util.getEnv('NODE_ENV'), server.name, server.url);
-  logger.info(config);
-});
+module.exports = {
+  run() {
+    server.listen(config.server.port, () => {
+      logger.info('%s server %s listening at %s', config.util.getEnv('NODE_ENV'), server.name, server.url);
+      logger.info(config);
+    });
+  }
+}
+

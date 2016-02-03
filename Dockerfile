@@ -27,7 +27,10 @@ RUN apt-get install -y \
   gcc-multilib \
   g++-multilib
 
-ENV DEBUG="nightmare"
+ENV DEBUG='nightmare'
+ENV NODE_ENV='production'
+ENV APPENV 'notificaptionenv'
+ENV YELLER_TOKEN ''
 
 # Add current directory to /app
 ADD . /app
@@ -41,4 +44,4 @@ RUN npm install
 EXPOSE 9099
 
 # Default command. Assumes our file is index.js and our screen size is 1024x768
-CMD xvfb-run --server-args="-screen 0 1024x768x24" node server.js
+CMD xvfb-run --server-args="-screen 0 1024x768x24" node run.js

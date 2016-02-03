@@ -1,7 +1,14 @@
 {
+  "server": {
+    "port": 9099
+  },
+
+  "defaultWidth": 400,
   "widths": [400, 800],
 
   "s3": {
+    "protocol": "https",
+    "hostname": "s3.amazonaws.com",
     "bucket": "opsee-notificaption-images"
   },
 
