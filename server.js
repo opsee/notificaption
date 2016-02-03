@@ -44,6 +44,7 @@ server.post('/screenshot', (req, res, next) => {
 
   // Kick off the pipeline
   pipeline({ key, check })
+    .then(res => logger.info(`Completed ${res.json_url}`))
     .catch(err => {
       logger.error(err);
       yeller.report(err);
