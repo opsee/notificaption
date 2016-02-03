@@ -64,7 +64,7 @@ server.get('/health', (req, res, next) => {
 
 module.exports = {
   run() {
-    server.listen(config.port, () => {
+    server.listen(config.server.port, () => {
       logger.info('%s server %s listening at %s', config.util.getEnv('NODE_ENV'), server.name, server.url);
       logger.info(config);
     });
