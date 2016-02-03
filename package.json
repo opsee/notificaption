@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "devserver": "NODE_ENV=development nodemon server.js",
-    "test": "DEBUG=nightmare node test/server.js",
+    "test": "NODE_ENV='test' DEBUG=nightmare node test/server.js",
     "lint": "./node_modules/eslint/bin/eslint.js --max-warnings 0 *.js"
   },
   "repository": {
