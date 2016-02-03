@@ -2,7 +2,6 @@ const config = require('config');
 const URL = require('url');
 
 const logger = require('./utils/logger');
-const keygen = require('./utils/keygen');
 
 const uploadJSON = require('./pipeline/upload-json');
 const screenshot = require('./pipeline/screenshot-all');
@@ -29,7 +28,9 @@ function buildEmissaryURI(checkID, jsonURI) {
 }
 
 /**
- * @param {object} check - a JSON object describing the check, assertions,
+ * @param {object} data
+ * @param {string} key - a base key for S3 URLs (check ID + timestamp)
+ * @param {object} data.check - a JSON object describing the check, assertions,
  *    results, and so on. Uploaded to S3 and used to populate the screenshot.
  *
  * @returns {Promise}
@@ -38,8 +39,9 @@ function buildEmissaryURI(checkID, jsonURI) {
  * @resolves {string} results.json_url - S3 URL to JSON
  * @resolves {string} results.image_urls - S3 URL to image
  */
-module.exports = function(check) {
-  const key = keygen(check.id);
+module.exports = function(data) {
+  const check = data.check;
+  const key = data.key;
 
   return uploadJSON({ check, key })
     .then(results => {
