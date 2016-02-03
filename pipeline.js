@@ -5,10 +5,9 @@ const logger = require('./utils/logger');
 const keygen = require('./utils/keygen');
 
 const uploadJSON = require('./pipeline/upload-json');
-const screenshot = require('./pipeline/screenshot');
+const screenshot = require('./pipeline/screenshot-all');
 const compress = require('./pipeline/compress');
-const uploadImages = require('./pipeline/upload-images');
-
+const uploadImages = require('./pipeline/upload-all');
 
 /**
  * @param {String} checkID
@@ -41,20 +40,17 @@ function buildEmissaryURI(checkID, jsonURI) {
  */
 module.exports = function(check) {
   const key = keygen(check.id);
-  const widths = [100];
 
   return uploadJSON({ check, key })
     .then(results => {
-      // Massage the JSON url into data for the rest of the pipeline
-      var jsonURL = results.json_url;
-      var uri = buildEmissaryURI(check.id, jsonURL);
+      var uri = buildEmissaryURI(check.id, results.json_url);
+      const widths = config.widths;
 
-      // Take an screenshot
-      return screenshot({ key, uri, widths, json_url: jsonURL });
+      return screenshot({ key, uri, widths,
+        json_url: results.json_url
+      });
     })
-    // Upload the screenshots to s3
     .then(uploadImages)
-    // Format the response for the server
     .then(results => {
       var jsonURL = results.json_url;
 
@@ -70,4 +66,4 @@ module.exports = function(check) {
         json_url: jsonURL
       };
     });
-};
+}

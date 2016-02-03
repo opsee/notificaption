@@ -1,7 +1,5 @@
 {
-  "defaultWidth": 300,
-
-  "widths": [320, 700],
+  "widths": [400, 800],
 
   "s3": {
     "bucket": "opsee-notificaption-images"
