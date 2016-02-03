@@ -35,11 +35,11 @@ module.exports = function(data) {
       for (var i = 0; i < results.length; i++) {
         var width = widths[i];
         var url = results[i];
-        response.screenshots[width].url = url;
+        response.screenshots[width] = url;
       }
 
       response.screenshots['default'] = {};
-      response.screenshots['default'].url = results[0];
+      response.screenshots['default'] = results[0];
 
       return response;
     });

@@ -9,7 +9,7 @@ function *takeScreenshots(opts) {
   var widths = opts.widths;
   var screenshots = {};
 
-  var nightmare = Nightmare({ show: true });
+  var nightmare = Nightmare({ show: false });
 
   for (var i = 0; i < widths.length; i++) {
       var width = widths[i];
