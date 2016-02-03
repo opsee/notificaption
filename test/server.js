@@ -1,10 +1,12 @@
-const check = require('./check.json');
+const config = require('config');
 const supertest = require('supertest');
+
+const check = require('./check.json');
 const server = require('../server.js');
 
 server.run();
 
-const request = supertest('http://localhost:9099');
+const request = supertest('http://localhost:' + config.server.port);
 request.post('/screenshot')
   .send(check)
   .expect(200)
