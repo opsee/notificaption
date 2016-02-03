@@ -12,6 +12,8 @@ module.exports = (key) => {
     imageURLS[width] = `${urlBase}/${key}_${width}.png`;
   }
 
+  imageURLS.default = imageURLS[config.defaultWidth];
+
   return {
     json_url: jsonURL,
     image_urls: imageURLS

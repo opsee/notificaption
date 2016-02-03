@@ -3,6 +3,7 @@
     "port": 9099
   },
 
+  "defaultWidth": 400,
   "widths": [400, 800],
 
   "s3": {
