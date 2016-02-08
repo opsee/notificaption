@@ -24,8 +24,8 @@ function *takeScreenshots(opts) {
         });
 
       var screenshot = yield nightmare
-        .viewport(width, viewportHeight + 40)
-        .wait(200) // fucking viewports
+        .viewport(width, viewportHeight + 25)
+        .wait(400) // Wait for the viewport to resize (again)
         .screenshot();
 
       screenshots[width] = screenshot;
