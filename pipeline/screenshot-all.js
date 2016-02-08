@@ -15,7 +15,7 @@ function *takeScreenshots(opts) {
       var width = widths[i];
 
       var viewportHeight = yield nightmare
-        .viewport(width, 100)
+        .viewport(width, 1)
         .goto(opts.uri)
         .wait('.js-screenshot-results') // wait for viewport to stabilize
         .evaluate(() => {
@@ -23,9 +23,11 @@ function *takeScreenshots(opts) {
           return body.scrollHeight;
         });
 
+      console.log('viewportHeight', viewportHeight);
+
       var screenshot = yield nightmare
-        .viewport(width, viewportHeight + 40)
-        .wait(200) // fucking viewports
+        .viewport(width, viewportHeight + 30)
+        .wait(400) // Wait for the viewport to resize (again)
         .screenshot();
 
       screenshots[width] = screenshot;

@@ -34,9 +34,10 @@ server.use(restify.CORS());
   */
 server.post('/screenshot', (req, res, next) => {
   const check = req.params;
+  const checkID = check.check_id;
 
   // Generate a base key for S3 URLs
-  const key = keygen(check.id);
+  const key = keygen(checkID);
 
   // Optimistically generate URLs to allow Nightmare to do its thing
   // in the background.
