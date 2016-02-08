@@ -41,11 +41,12 @@ function buildEmissaryURI(checkID, jsonURI) {
  */
 module.exports = function(data) {
   const check = data.check;
+  const checkID = check.check_id;
   const key = data.key;
 
   return uploadJSON({ check, key })
     .then(results => {
-      var uri = buildEmissaryURI(check.id, results.json_url);
+      var uri = buildEmissaryURI(checkID, results.json_url);
       const widths = config.widths;
 
       return screenshot({ key, uri, widths,
