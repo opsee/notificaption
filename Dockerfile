@@ -27,6 +27,11 @@ RUN apt-get install -y \
   gcc-multilib \
   g++-multilib
 
+# Pull down app environment
+RUN mkdir -p /opt/bin && \
+    curl -Lo /opt/bin/s3kms https://s3-us-west-2.amazonaws.com/opsee-releases/go/vinz-clortho/s3kms-linux-amd64 && \
+    chmod 755 /opt/bin/s3kms
+
 ENV DEBUG='nightmare'
 ENV NODE_ENV='production'
 ENV APPENV 'notificaptionenv'
