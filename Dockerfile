@@ -42,7 +42,7 @@ ENV YELLER_TOKEN ''
 # http://bitjudo.com/blog/2014/03/13/building-efficient-dockerfiles-node-dot-js/
 ADD package.json /tmp/package.json
 RUN cd /tmp && npm install
-RUN mkdir -p /opt/app && cp -a /tmp/node_modules /opt/app/
+RUN mkdir -p /app && cp -a /tmp/node_modules /app/
 
 # Add current directory to /app
 ADD . /app
