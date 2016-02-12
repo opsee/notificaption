@@ -38,14 +38,17 @@ ENV NODE_ENV 'production'
 ENV APPENV 'notificaptionenv'
 ENV YELLER_TOKEN ''
 
+# Make sure node_modules aren't installed every time
+# http://bitjudo.com/blog/2014/03/13/building-efficient-dockerfiles-node-dot-js/
+ADD package.json /tmp/package.json
+RUN cd /tmp && npm install
+RUN mkdir -p /opt/app && cp -a /tmp/node_modules /opt/app/
+
 # Add current directory to /app
 ADD . /app
 
 # Set current working directory as /app
 WORKDIR /app
-
-# Install npm packages
-RUN npm install --silent --no-progress
 
 EXPOSE 9099
 
