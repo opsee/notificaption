@@ -4,6 +4,7 @@
   "description": "Screenshots of Emissary for notifications",
   "main": "server.js",
   "scripts": {
+    "start": "node run.js",
     "devserver": "NODE_ENV=development nodemon server.js",
     "test": "NODE_ENV='test' DEBUG=nightmare node test/server.js",
     "lint": "./node_modules/eslint/bin/eslint.js --max-warnings 0 *.js"
