@@ -34,7 +34,12 @@ server.use(restify.CORS());
   */
 server.post('/screenshot', (req, res, next) => {
   const check = req.params;
+  logger.info(check);
+
   const checkID = check.check_id;
+  if (!checkID) {
+    return next(new restify.InvalidArgumentError('Must provide check_id'));
+  }
 
   // Generate a base key for S3 URLs
   const key = keygen(checkID);
