@@ -9,18 +9,19 @@ function *takeScreenshots(opts) {
   var widths = opts.widths;
   var screenshots = {};
 
+  // Share a nightmare instance for all screenshots -- this is much faster,
+  // since Emissary only needs to make one S3 request for all screenshots.
   var nightmare = Nightmare({ show: false });
 
   for (var i = 0; i < widths.length; i++) {
       var width = widths[i];
 
       var viewportHeight = yield nightmare
-        .viewport(width, 1)
+        .viewport(width, 1) // reset the viewport
         .goto(opts.uri)
         .wait('.js-screenshot-results') // wait for viewport to stabilize
         .evaluate(() => {
-          var body = document.querySelector('body');
-          return body.scrollHeight;
+          return document.querySelector('body').scrollHeight;
         });
 
       console.log('viewportHeight', viewportHeight);
