@@ -1,6 +1,5 @@
 const config = require('config');
 const logger = require('./utils/logger');
-const pipeline = require('./pipeline');
 const restify = require('restify');
 const yeller = require('./utils/yeller');
 const generateURLs = require('./utils/generate-urls');

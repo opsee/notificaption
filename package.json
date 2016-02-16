@@ -24,11 +24,8 @@
     "bluebird": "^3.2.1",
     "config": "^1.19.0",
     "eslint": "^1.10.3",
-    "imagemin": "^4.0.0",
     "lodash": "^4.2.0",
-    "nightmare": "^2.1.6",
     "restify": "^4.0.3",
-    "vo": "^1.0.3",
     "winston": "^2.1.1",
     "yeller_node": "0.0.7"
   },
