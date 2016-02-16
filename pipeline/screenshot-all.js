@@ -11,27 +11,37 @@ function *takeScreenshots(opts) {
 
   // Share a nightmare instance for all screenshots -- this is much faster,
   // since Emissary only needs to make one S3 request for all screenshots.
-  var nightmare = Nightmare({ show: false });
+  var nightmare = Nightmare({
+    show: false,
+    waitTimeout: 3000,
+  });
 
   for (var i = 0; i < widths.length; i++) {
       var width = widths[i];
 
-      var viewportHeight = yield nightmare
-        .viewport(width, 1) // reset the viewport
-        .goto(opts.uri)
-        .wait('.js-screenshot-results') // wait for viewport to stabilize
-        .evaluate(() => {
-          return document.querySelector('body').scrollHeight;
-        });
+      try {
+        var viewportHeight = yield nightmare
+          .viewport(width, 1) // reset the viewport
+          .goto(opts.uri)
+          .wait('.js-screenshot-results') // wait for viewport to stabilize
+          .evaluate(() => {
+            return document.querySelector('body').scrollHeight;
+          });
 
-      console.log('viewportHeight', viewportHeight);
+        console.log('viewportHeight', viewportHeight);
 
-      var screenshot = yield nightmare
-        .viewport(width, viewportHeight + 30)
-        .wait(400) // Wait for the viewport to resize (again)
-        .screenshot();
+        var screenshot = yield nightmare
+          .viewport(width, viewportHeight + 30)
+          .wait(400) // Wait for the viewport to resize (again)
+          .screenshot();
 
-      screenshots[width] = screenshot;
+        screenshots[width] = screenshot;
+      } catch (e) {
+        // Clean up nightmare or else the electron processes won't be reaped
+        logger.error('Encoutered exception in screenshot -- killing nightmare process');
+        yield nightmare.end();
+        throw e;
+      }
     }
 
     yield nightmare.end();
