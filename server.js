@@ -5,6 +5,7 @@ const restify = require('restify');
 const yeller = require('./utils/yeller');
 const generateURLs = require('./utils/generate-urls');
 const keygen = require('./utils/keygen');
+const uploadUtils = require('./utils/upload');
 
 const server = restify.createServer({
   name: 'notificaption'
@@ -44,20 +45,19 @@ server.post('/screenshot', (req, res, next) => {
   // Generate a base key for S3 URLs
   const key = keygen(checkID);
 
-  // Optimistically generate URLs to allow Nightmare to do its thing
-  // in the background.
-  const urls = generateURLs(key);
+  uploadUtils.uploadJSON(key, check)
+    .then(result => {
+      if (!result.url) {
+        throw new Error('Malformed S3 response: ' + result);
+      }
 
-  // Kick off the pipeline
-  pipeline({ key, check })
-    .then(res => logger.info(`Completed ${res.json_url}`))
+      res.send({ json_url: result.url });
+      next();
+    })
     .catch(err => {
       logger.error(err);
       yeller.report(err);
     });
-
-  res.send(urls);
-  next();
 });
 
 /**
