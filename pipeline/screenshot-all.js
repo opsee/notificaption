@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const logger = require('../utils/logger');
 const Nightmare = require('nightmare');
 const vo = require('vo');
 
@@ -28,7 +29,7 @@ function *takeScreenshots(opts) {
             return document.querySelector('body').scrollHeight;
           });
 
-        console.log('viewportHeight', viewportHeight);
+        logger.info('viewportHeight', viewportHeight);
 
         var screenshot = yield nightmare
           .viewport(width, viewportHeight + 30)
