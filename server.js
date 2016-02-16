@@ -54,8 +54,11 @@ server.post('/screenshot', (req, res, next) => {
       next();
     })
     .catch(err => {
+      logger.error('????????');
       logger.error(err);
       yeller.report(err);
+      res.send(500);
+      next();
     });
 });
 
