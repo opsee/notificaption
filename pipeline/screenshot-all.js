@@ -38,6 +38,7 @@ function *takeScreenshots(opts) {
         screenshots[width] = screenshot;
       } catch (e) {
         // Clean up nightmare or else the electron processes won't be reaped
+        logger.error('Encoutered exception in screenshot -- killing nightmare process');
         yield nightmare.end();
         throw e;
       }
