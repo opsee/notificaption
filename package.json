@@ -4,7 +4,7 @@
   "description": "Screenshots of Emissary for notifications",
   "main": "server.js",
   "scripts": {
-    "start": "node run.js",
+    "start": "node --max_old_space_size=256 run.js",
     "devserver": "NODE_ENV=development nodemon server.js",
     "test": "echo 'no tests 4 nocap'",
     "lint": "./node_modules/eslint/bin/eslint.js --max-warnings 0 *.js"
