@@ -1,11 +1,6 @@
-FROM node:4.2
+FROM mhart/alpine-node:5.7
 
-# Updating ubuntu packages
-RUN apt-get update
-
-# Installing the packages needed to run Nightmare
-RUN apt-get install -y \
-  musl-dev
+RUN apk add --update curl bash
 
 # Pull down app environment
 RUN mkdir -p /opt/bin && \
@@ -18,12 +13,12 @@ ENV YELLER_TOKEN ''
 
 # Make sure node_modules aren't installed every time
 # http://bitjudo.com/blog/2014/03/13/building-efficient-dockerfiles-node-dot-js/
-ADD package.json /tmp/package.json
+COPY package.json /tmp/
 RUN cd /tmp && npm install
 RUN mkdir -p /app && cp -a /tmp/node_modules /app/
 
 # Add current directory to /app
-ADD . /app
+COPY . /app/
 
 # Set current working directory as /app
 WORKDIR /app
